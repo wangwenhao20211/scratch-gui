@@ -11,8 +11,7 @@ const CustomIntlProvider = props => {
         let cancelled = false;
         setCustomMessages(null);
 
-        // 尝试从 static/custom-translations/{locale}.json 加载你自己的翻译
-        fetch(`${process.env.ROOT}custom-translations/${locale}.json`)
+        fetch(`/custom-translations/${locale}.json`)
             .then(res => {
                 if (!res.ok) return null;
                 return res.json();
@@ -20,16 +19,13 @@ const CustomIntlProvider = props => {
             .then(data => {
                 if (!cancelled && data) setCustomMessages(data);
             })
-            .catch(() => {
-                // 没有自定义翻译文件时静默忽略
-            });
+            .catch(() => {});
 
         return () => {
             cancelled = true;
         };
     }, [locale]);
 
-    // 自定义翻译会覆盖官方翻译（后面的对象优先）
     const mergedMessages = customMessages ?
         {...messages, ...customMessages} :
         messages;
