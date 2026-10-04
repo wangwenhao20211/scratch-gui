@@ -6,15 +6,15 @@ const cloudHost = searchParams.get('cloud_host') || 'wss://clouddata.turbowarp.o
 
 const RenderGUI = props => (
     <GUI
-        cloudHost={cloudHost}
-        canUseCloud
-        hasCloudPermission
-        canSave={false}
-        basePath={process.env.ROOT}
-        canEditTitle
-        enableCommunity
-        {...props}
-    />
-);
+            cloudHost={cloudHost}
+                    canUseCloud
+                            hasCloudPermission
+                                    canSave={false}
+                                            basePath={process.env.ROOT}
+                                                    canEditTitle
+                                                            //enableCommunity
+                                                                    {...props}
+                                                                        />
+                                                                        );
 
-export default RenderGUI;
+                                                                        export default RenderGUI;
