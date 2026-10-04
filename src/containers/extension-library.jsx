@@ -39,9 +39,10 @@ const translateGalleryItem = (extension, locale) => ({
     description: extension.descriptionTranslations[locale] || extension.description
 });
 
-let cachedGallery = null;
-
-const fetchLibrary = async () => {
+// ============================================================
+// 1. 官方 TurboWarp 扩展库抓取
+// ============================================================
+const fetchOfficialLibrary = async () => {
     const res = await fetch('https://extensions.turbowarp.org/generated-metadata/extensions-v0.json');
     if (!res.ok) {
         throw new Error(`HTTP status ${res.status}`);
@@ -62,12 +63,7 @@ const fetchLibrary = async () => {
         ].map(credit => {
             if (credit.link) {
                 return (
-                    <a
-                        href={credit.link}
-                        target="_blank"
-                        rel="noreferrer"
-                        key={credit.name}
-                    >
+                    <a href={credit.link} target="_blank" rel="noreferrer" key={credit.name}>
                         {credit.name}
                     </a>
                 );
@@ -84,6 +80,49 @@ const fetchLibrary = async () => {
     }));
 };
 
+// ============================================================
+// 2. 你自己的 wwh 扩展库动态抓取
+// ============================================================
+const fetchWwhLibrary = async () => {
+    const res = await fetch('https://turbowarp-extensions.pages.dev/generated-metadata/extensions-v0.json');
+    if (!res.ok) {
+        throw new Error(`HTTP status ${res.status}`);
+    }
+    const data = await res.json();
+    return data.extensions.map(extension => ({
+        name: extension.name,
+        nameTranslations: extension.nameTranslations || {},
+        description: extension.description,
+        descriptionTranslations: extension.descriptionTranslations || {},
+        extensionId: extension.id,
+        extensionURL: `https://turbowarp-extensions.pages.dev/${extension.slug}.js`,
+        iconURL: `https://turbowarp-extensions.pages.dev/${extension.image || 'images/unknown.svg'}`,
+        tags: ['wwh'], // 关键：动态抓取，但强制打上 wwh 标签
+        credits: [
+            ...(extension.original || []),
+            ...(extension.by || [])
+        ].map(credit => {
+            if (credit.link) {
+                return (
+                    <a href={credit.link} target="_blank" rel="noreferrer" key={credit.name}>
+                        {credit.name}
+                    </a>
+                );
+            }
+            return credit.name;
+        }),
+        docsURI: extension.docs ? `https://turbowarp-extensions.pages.dev/${extension.slug}` : null,
+        samples: extension.samples ? extension.samples.map(sample => ({
+            href: `${process.env.ROOT}editor?project_url=https://turbowarp-extensions.pages.dev/samples/${encodeURIComponent(sample)}.sb3`,
+            text: sample
+        })) : null,
+        incompatibleWithScratch: !extension.scratchCompatible,
+        featured: true
+    }));
+};
+
+let cachedGallery = null;
+
 class ExtensionLibrary extends React.PureComponent {
     constructor (props) {
         super(props);
@@ -96,31 +135,39 @@ class ExtensionLibrary extends React.PureComponent {
             galleryTimedOut: false
         };
     }
+
     componentDidMount () {
         if (!this.state.gallery) {
             const timeout = setTimeout(() => {
-                this.setState({
-                    galleryTimedOut: true
-                });
+                this.setState({galleryTimedOut: true});
             }, 750);
 
-            fetchLibrary()
-                .then(gallery => {
-                    cachedGallery = gallery;
-                    this.setState({
-                        gallery
-                    });
-                    clearTimeout(timeout);
-                })
-                .catch(error => {
-                    log.error(error);
-                    this.setState({
-                        galleryError: error
-                    });
+            // 同时发起请求，互不阻塞
+            Promise.allSettled([fetchOfficialLibrary(), fetchWwhLibrary()])
+                .then(([officialResult, wwhResult]) => {
+                    let mergedGallery = [];
+                    
+                    // 官方库成功则加入
+                    if (officialResult.status === 'fulfilled') {
+                        mergedGallery = [...mergedGallery, ...officialResult.value];
+                    } else {
+                        log.error('Official library failed:', officialResult.reason);
+                    }
+                    
+                    // 你的库成功则加入
+                    if (wwhResult.status === 'fulfilled') {
+                        mergedGallery = [...mergedGallery, ...wwhResult.value];
+                    } else {
+                        log.error('WWH library failed:', wwhResult.reason);
+                    }
+                    
+                    cachedGallery = mergedGallery;
+                    this.setState({ gallery: mergedGallery });
                     clearTimeout(timeout);
                 });
         }
     }
+
     handleItemSelect (item) {
         if (item.href) {
             return;
@@ -156,6 +203,7 @@ class ExtensionLibrary extends React.PureComponent {
             }
         }
     }
+
     render () {
         let library = null;
         if (this.state.gallery || this.state.galleryError || this.state.galleryTimedOut) {
@@ -200,7 +248,7 @@ ExtensionLibrary.propTypes = {
     onOpenCustomExtensionModal: PropTypes.func,
     onRequestClose: PropTypes.func,
     visible: PropTypes.bool,
-    vm: PropTypes.instanceOf(VM).isRequired // eslint-disable-line react/no-unused-prop-types
+    vm: PropTypes.instanceOf(VM).isRequired
 };
 
 export default injectIntl(ExtensionLibrary);
