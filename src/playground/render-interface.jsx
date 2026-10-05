@@ -7,11 +7,11 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
 import classNames from 'classnames';
@@ -32,7 +32,7 @@ import '../lib/tw-fix-history-api';
 import GUI from './render-gui.jsx';
 import MenuBar from '../components/menu-bar/menu-bar.jsx';
 import ProjectInput from '../components/tw-project-input/project-input.jsx';
-import FeaturedProjects from '../components/tw-featured-projects/featured-projects.jsx';
+// import FeaturedProjects from '../components/tw-featured-projects/featured-projects.jsx';
 import Description from '../components/tw-description/description.jsx';
 import BrowserModal from '../components/browser-modal/browser-modal.jsx';
 import CloudVariableBadge from '../containers/tw-cloud-variable-badge.jsx';
@@ -82,6 +82,7 @@ if (AddonChannels.changeChannel) {
 
 runAddons();
 
+/*
 const Footer = () => (
     <footer className={styles.footer}>
         <div className={styles.footerContent}>
@@ -129,11 +130,9 @@ const Footer = () => (
                 </div>
                 <div className={styles.footerSection}>
                     <a href="https://desktop.turbowarp.org/">
-                        {/* Do not translate */}
                         {'TurboWarp Desktop'}
                     </a>
                     <a href="https://packager.turbowarp.org/">
-                        {/* Do not translate */}
                         {'TurboWarp Packager'}
                     </a>
                     <a href="https://docs.turbowarp.org/embedding">
@@ -185,17 +184,20 @@ const Footer = () => (
         </div>
     </footer>
 );
+*/
 
 class Interface extends React.Component {
     constructor (props) {
         super(props);
         this.handleUpdateProjectTitle = this.handleUpdateProjectTitle.bind(this);
     }
+
     componentDidUpdate (prevProps) {
         if (prevProps.isLoading && !this.props.isLoading) {
             loadServiceWorker();
         }
     }
+
     handleUpdateProjectTitle (title, isDefault) {
         if (isDefault || !title) {
             document.title = `${APP_NAME} - ${this.props.intl.formatMessage(messages.defaultTitle)}`;
@@ -203,6 +205,7 @@ class Interface extends React.Component {
             document.title = `${title} - ${APP_NAME}`;
         }
     }
+
     render () {
         if (isInvalidEmbed) {
             return <InvalidEmbed />;
@@ -221,8 +224,10 @@ class Interface extends React.Component {
             /* eslint-enable no-unused-vars */
             ...props
         } = this.props;
+
         const isHomepage = isPlayerOnly && !isFullScreen;
         const isEditor = !isPlayerOnly;
+
         return (
             <div
                 className={classNames(styles.container, {
@@ -279,6 +284,7 @@ class Interface extends React.Component {
                                     />
                                 </div>
                             ) : null}
+                            {/*
                             <div className={styles.section}>
                                 <p>
                                     <FormattedMessage
@@ -292,10 +298,11 @@ class Interface extends React.Component {
                                     />
                                 </p>
                             </div>
+                            */}
                         </React.Fragment>
                     ) : null}
                 </div>
-                {isHomepage && <Footer />}
+                {/* {isHomepage && <Footer />} */}
             </div>
         );
     }
