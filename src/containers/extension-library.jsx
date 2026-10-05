@@ -120,21 +120,6 @@ const fetchWwhLibrary = async () => {
         featured: true
     }));
 
-    // ============================================================
-    // 3. 添加你自己的扩展库链接（点击后在新标签页打开）
-    // ============================================================
-    wwhExtensions.unshift({
-        name: '我的扩展库主页',
-        nameTranslations: {},
-        description: '在浏览器中打开完整的 wwh 扩展库',
-        descriptionTranslations: {},
-        extensionId: 'wwh_library_homepage',
-        href: 'https://turbowarp-extensions.pages.dev/',  // 改成你要打开的链接
-        iconURL: 'https://turbowarp-extensions.pages.dev/images/unknown.svg',  // 改成你想要的图标
-        tags: ['wwh'],
-        featured: false
-    });
-
     return wwhExtensions;
 };
 
