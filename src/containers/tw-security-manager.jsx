@@ -10,6 +10,37 @@ import {getPersistedUnsandboxed, setPersistedUnsandboxed} from '../lib/tw-persis
 /* eslint-disable require-atomic-updates */
 
 /**
+ * 全局“信任所有扩展”开关的 localStorage 键
+ */
+const TRUST_ALL_KEY = 'tw:trust_all_extensions';
+
+/**
+ * @returns {boolean} 全局信任开关是否开启
+ */
+const isTrustAllEnabled = () => {
+    try {
+        return localStorage.getItem(TRUST_ALL_KEY) === 'true';
+    } catch (e) {
+        return false;
+    }
+};
+
+/**
+ * @param {boolean} enabled 是否开启
+ */
+const setTrustAllEnabled = enabled => {
+    try {
+        if (enabled) {
+            localStorage.setItem(TRUST_ALL_KEY, 'true');
+        } else {
+            localStorage.removeItem(TRUST_ALL_KEY);
+        }
+    } catch (e) {
+        // ignore
+    }
+};
+
+/**
  * Set of extension URLs that the user has manually trusted to load unsandboxed.
  */
 const extensionsTrustedByUser = new Set();
@@ -24,6 +55,9 @@ const manuallyTrustExtension = url => {
  * @returns {boolean} True if the extension can is trusted
  */
 const isTrustedExtension = url => (
+    // 全局“信任所有扩展”开关开启时，一切扩展都视为可信
+    isTrustAllEnabled() ||
+
     // Always trust our official extension repostiory.
     url.startsWith('https://extensions.turbowarp.org/') ||
 
@@ -52,8 +86,6 @@ const embedHostsTrustedByUser = new Set();
  * @returns {boolean} True if path is untrusted.
  */
 const isUntrustedPath = parsed => (
-    // Cloudflare serves stuff on /cdn-cgi/ that we don't want to let projects access without showing
-    // a permission prompt to a non-trusted domain (/cdn-cgi/trace contains IP)
     /^\/cdn-cgi\//i.test(parsed.pathname)
 );
 
@@ -62,28 +94,20 @@ const isUntrustedPath = parsed => (
  * @returns {boolean} True if the URL is part of the builtin set of URLs to always trust fetching from.
  */
 const isAlwaysTrustedForFetching = parsed => (
-    // If we would trust loading an extension from here, we can trust loading resources too.
     isTrustedExtension(parsed.href) ||
 
-    // Any TurboWarp service such as trampoline
     parsed.origin === 'https://turbowarp.org' ||
     parsed.origin.endsWith('.turbowarp.org') ||
     parsed.origin.endsWith('.turbowarp.xyz') ||
 
-    // GitHub API
-    // GitHub Pages allows redirects, so not included here.
     parsed.origin === 'https://raw.githubusercontent.com' ||
     parsed.origin === 'https://gist.githubusercontent.com' ||
     parsed.origin === 'https://api.github.com' ||
 
-    // GitLab API
-    // GitLab Pages allows redirects, so not included here.
     parsed.origin === 'https://gitlab.com' ||
 
-    // Sourcehut Pages
     parsed.origin.endsWith('.srht.site') ||
 
-    // GameJolt
     parsed.origin === 'https://api.gamejolt.com'
 );
 
@@ -97,7 +121,6 @@ const FETCHABLE_PROTOCOLS = [
 ];
 
 const VISITABLE_PROTOCOLS = [
-    // The important one we want to exclude is javascript:
     'http:',
     'https:',
     'data:',
@@ -172,17 +195,7 @@ class TWSecurityManagerComponent extends React.Component {
         }
     }
 
-    // eslint-disable-next-line valid-jsdoc
-    /**
-     * @returns {Promise<() => Promise<boolean>>} Resolves with a function that you can call to show the modal.
-     * The resolved function returns a promise that resolves with true if the request was approved.
-     */
     async acquireModalLock () {
-        // We need a two-step process for showing a modal so that we don't overwrite or overlap modals,
-        // and so that multiple attempts to fetch resources from the same origin will all be allowed
-        // with just one click. This means that some places have to wait until previous modals are
-        // closed before it knows if it needs to display another modal.
-
         if (this.modalLocked) {
             await new Promise(resolve => {
                 this.nextModalCallbacks.push(resolve);
@@ -198,7 +211,6 @@ class TWSecurityManagerComponent extends React.Component {
             } else {
                 this.modalLocked = false;
                 this.setState({
-                    // only clear type in case other data needs to be accessed
                     type: null
                 });
             }
@@ -262,7 +274,9 @@ class TWSecurityManagerComponent extends React.Component {
             log.info(`Loading extension ${url} automatically`);
             return true;
         }
+
         const {showModal} = await this.acquireModalLock();
+
         if (url.startsWith('data:')) {
             const allowed = await showModal(SecurityModals.LoadExtension, {
                 url,
@@ -277,24 +291,19 @@ class TWSecurityManagerComponent extends React.Component {
             }
             return allowed;
         }
+
         return showModal(SecurityModals.LoadExtension, {
             url,
             unsandboxed: false
         });
     }
 
-    /**
-     * @param {string} url The resource to fetch
-     * @returns {Promise<boolean>} True if the resource is allowed to be fetched
-     */
     async canFetch (url) {
         const parsed = parseURL(url, FETCHABLE_PROTOCOLS);
         if (!parsed) {
             return false;
         }
         if (isAlwaysTrustedForFetching(parsed)) {
-            // For untrusted paths, don't even show a dialog, just auto-reject because users won't understand
-            // what the dialog actually does.
             return !isUntrustedPath(parsed);
         }
         const {showModal, releaseLock} = await this.acquireModalLock();
@@ -317,10 +326,6 @@ class TWSecurityManagerComponent extends React.Component {
         return allowed;
     }
 
-    /**
-     * @param {string} url The website to open
-     * @returns {Promise<boolean>} True if the website can be opened
-     */
     async canOpenWindow (url) {
         const parsed = parseURL(url, VISITABLE_PROTOCOLS);
         if (!parsed) {
@@ -332,10 +337,6 @@ class TWSecurityManagerComponent extends React.Component {
         });
     }
 
-    /**
-     * @param {string} url The website to redirect to
-     * @returns {Promise<boolean>} True if the website can be redirected to
-     */
     async canRedirect (url) {
         const parsed = parseURL(url, VISITABLE_PROTOCOLS);
         if (!parsed) {
@@ -347,9 +348,6 @@ class TWSecurityManagerComponent extends React.Component {
         });
     }
 
-    /**
-     * @returns {Promise<boolean>} True if audio can be recorded
-     */
     async canRecordAudio () {
         if (!allowedAudio) {
             const {showModal} = await this.acquireModalLock();
@@ -358,9 +356,6 @@ class TWSecurityManagerComponent extends React.Component {
         return allowedAudio;
     }
 
-    /**
-     * @returns {Promise<boolean>} True if video can be recorded
-     */
     async canRecordVideo () {
         if (!allowedVideo) {
             const {showModal} = await this.acquireModalLock();
@@ -369,9 +364,6 @@ class TWSecurityManagerComponent extends React.Component {
         return allowedVideo;
     }
 
-    /**
-     * @returns {Promise<boolean>} True if the clipboard can be read
-     */
     async canReadClipboard () {
         if (!allowedReadClipboard) {
             const {showModal} = await this.acquireModalLock();
@@ -380,9 +372,6 @@ class TWSecurityManagerComponent extends React.Component {
         return allowedReadClipboard;
     }
 
-    /**
-     * @returns {Promise<boolean>} True if the notifications are allowed
-     */
     async canNotify () {
         if (!allowedNotify) {
             const {showModal} = await this.acquireModalLock();
@@ -391,9 +380,6 @@ class TWSecurityManagerComponent extends React.Component {
         return allowedNotify;
     }
 
-    /**
-     * @returns {Promise<boolean>} True if geolocation is allowed.
-     */
     async canGeolocate () {
         if (!allowedGeolocation) {
             const {showModal} = await this.acquireModalLock();
@@ -402,10 +388,6 @@ class TWSecurityManagerComponent extends React.Component {
         return allowedGeolocation;
     }
 
-    /**
-     * @param {string} url Frame URL
-     * @returns {Promise<boolean>} True if embed is allowed.
-     */
     async canEmbed (url) {
         const parsed = parseURL(url, FETCHABLE_PROTOCOLS);
         if (!parsed) {
@@ -424,11 +406,6 @@ class TWSecurityManagerComponent extends React.Component {
         return allowed;
     }
 
-    /**
-     * @param {string} url URL to download
-     * @param {string} name Name to download as
-     * @returns {Promise<boolean>} True if allowed
-     */
     async canDownload (url, name) {
         const parsed = parseURL(url, FETCHABLE_PROTOCOLS);
         if (!parsed) {
@@ -489,5 +466,7 @@ const ConnectedSecurityManagerComponent = connect(
 export {
     ConnectedSecurityManagerComponent as default,
     manuallyTrustExtension,
-    isTrustedExtension
+    isTrustedExtension,
+    isTrustAllEnabled,
+    setTrustAllEnabled
 };
