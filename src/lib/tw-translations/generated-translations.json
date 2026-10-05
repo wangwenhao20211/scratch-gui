@@ -4967,7 +4967,9 @@
         "tw.usesCloudVariables2": "{APP_NAME} 的云变量与 Scratch 的云变量没有关联。任何人都可以把 {changeTheirUsername} 改成任何东西，所以请小心冒名顶替。",
         "tw.usesCloudVariables2.change": "自己的用户名",
         "tw.viewFeaturedProjects": "点击以查看特色作品。",
-        "tw.viewOnScratch": "在 Scratch 网站上查看作品"
+        "tw.viewOnScratch": "在 Scratch 网站上查看作品",
+        "tw.accent.orange": "橙色",
+        "tw.accent.brown": "棕色"
     },
     "zh-tw": {
         "tw.alerts.lostPeripheralConnection": "與{extensionName}的連線中斷了。",
