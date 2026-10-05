@@ -130,7 +130,7 @@ const fetchWwhLibrary = async () => {
         descriptionTranslations: {},
         extensionId: 'wwh_library_homepage',
         href: 'https://turbowarp-extensions.pages.dev/',  // 改成你要打开的链接
-        iconURL: 'https://turbowarp-extensions.pages.dev/image/unknown.svg',  // 改成你想要的图标
+        iconURL: 'https://turbowarp-extensions.pages.dev/images/unknown.svg',  // 改成你想要的图标
         tags: ['wwh'],
         featured: false
     });
