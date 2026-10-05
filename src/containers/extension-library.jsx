@@ -89,7 +89,7 @@ const fetchWwhLibrary = async () => {
         throw new Error(`HTTP status ${res.status}`);
     }
     const data = await res.json();
-    return data.extensions.map(extension => ({
+    const wwhExtensions = data.extensions.map(extension => ({
         name: extension.name,
         nameTranslations: extension.nameTranslations || {},
         description: extension.description,
@@ -97,7 +97,7 @@ const fetchWwhLibrary = async () => {
         extensionId: extension.id,
         extensionURL: `https://turbowarp-extensions.pages.dev/${extension.slug}.js`,
         iconURL: `https://turbowarp-extensions.pages.dev/${extension.image || 'images/unknown.svg'}`,
-        tags: ['wwh'], // 关键：动态抓取，但强制打上 wwh 标签
+        tags: ['wwh'],
         credits: [
             ...(extension.original || []),
             ...(extension.by || [])
@@ -119,6 +119,23 @@ const fetchWwhLibrary = async () => {
         incompatibleWithScratch: !extension.scratchCompatible,
         featured: true
     }));
+
+    // ============================================================
+    // 3. 添加你自己的扩展库链接（点击后在新标签页打开）
+    // ============================================================
+    wwhExtensions.unshift({
+        name: '我的扩展库主页',
+        nameTranslations: {},
+        description: '在浏览器中打开完整的 wwh 扩展库',
+        descriptionTranslations: {},
+        extensionId: 'wwh_library_homepage',
+        href: 'https://turbowarp-extensions.pages.dev/',  // 改成你要打开的链接
+        iconURL: 'https://turbowarp-extensions.pages.dev/favicon.ico',  // 改成你想要的图标
+        tags: ['wwh'],
+        featured: false
+    });
+
+    return wwhExtensions;
 };
 
 let cachedGallery = null;
@@ -142,25 +159,22 @@ class ExtensionLibrary extends React.PureComponent {
                 this.setState({galleryTimedOut: true});
             }, 750);
 
-            // 同时发起请求，互不阻塞
             Promise.allSettled([fetchOfficialLibrary(), fetchWwhLibrary()])
                 .then(([officialResult, wwhResult]) => {
                     let mergedGallery = [];
-                    
-                    // 官方库成功则加入
+
                     if (officialResult.status === 'fulfilled') {
                         mergedGallery = [...mergedGallery, ...officialResult.value];
                     } else {
                         log.error('Official library failed:', officialResult.reason);
                     }
-                    
-                    // 你的库成功则加入
+
                     if (wwhResult.status === 'fulfilled') {
                         mergedGallery = [...mergedGallery, ...wwhResult.value];
                     } else {
                         log.error('WWH library failed:', wwhResult.reason);
                     }
-                    
+
                     cachedGallery = mergedGallery;
                     this.setState({ gallery: mergedGallery });
                     clearTimeout(timeout);
@@ -169,7 +183,11 @@ class ExtensionLibrary extends React.PureComponent {
     }
 
     handleItemSelect (item) {
+        // ============================================================
+        // 4. 带 href 的项（链接）直接打开新窗口
+        // ============================================================
         if (item.href) {
+            window.open(item.href, '_blank', 'noopener,noreferrer');
             return;
         }
 
