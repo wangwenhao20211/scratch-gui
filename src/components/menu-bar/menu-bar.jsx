@@ -106,7 +106,7 @@ import sharedMessages from '../../lib/shared-messages';
 
 import SeeInsideButton from './tw-see-inside.jsx';
 import {notScratchDesktop} from '../../lib/isScratchDesktop.js';
-import {APP_NAME} from '../../lib/brand.js';
+import {APP_NAME, TW_NAME} from '../../lib/brand.js';
 
 const ariaMessages = defineMessages({
     tutorials: {
@@ -1011,28 +1011,50 @@ class MenuBar extends React.Component {
                             />
                         ) : []))}
                     </div>
-                    {/* tw: add a feedback button */}
-                    <div className={styles.menuBarItem}>
-                        <a
-                            className={styles.feedbackLink}
-                            href="https://scratch.mit.edu/users/GarboMuffin/#comments"
-                            rel="noopener noreferrer"
-                            target="_blank"
-                        >
-                            {/* todo: icon */}
-                            <Button className={styles.feedbackButton}>
-                                <FormattedMessage
-                                    defaultMessage="{APP_NAME} Feedback"
-                                    description="Button to give feedback in the menu bar"
-                                    id="tw.feedbackButton"
-                                    values={{
-                                        APP_NAME
-                                    }}
-                                />
-                            </Button>
-                        </a>
-                    </div>
-                </div>
+
+{/* tw: add a feedback button */}
+<div className={styles.menuBarItem}>
+    <a
+        className={styles.feedbackLink}
+        href="https://scratch.mit.edu/users/GarboMuffin/#comments"
+        rel="noopener noreferrer"
+        target="_blank"
+    >
+        <Button className={styles.feedbackButton}>
+            <FormattedMessage
+                defaultMessage="{TW_NAME} Feedback"
+                description="Button to give feedback in the menu bar"
+                id="tw.feedbackButton"
+                values={{
+                    TW_NAME
+                }}
+            />
+        </Button>
+    </a>
+</div>
+
+{/* wwh: add a suggest button */}
+<div className={styles.menuBarItem}>
+    <a
+        className={styles.feedbackLink}
+        href="https://space.bilibili.com/1512219051"
+        rel="noopener noreferrer"
+        target="_blank"
+    >
+        <Button className={styles.feedbackButton}>
+            <FormattedMessage
+                defaultMessage="Suggest {APP_NAME}"
+                description="Button to suggest features in the menu bar"
+                id="wwh.suggestButton"
+                values={{
+                    APP_NAME
+                }}
+            />
+        </Button>
+    </a>
+</div>
+
+</div>   {/* ← 这个才是关闭 mainMenu 的 */}
 
                 <div className={styles.accountInfoGroup}>
                     <TWSaveStatus
