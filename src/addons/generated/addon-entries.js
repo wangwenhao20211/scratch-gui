@@ -82,4 +82,5 @@ export default {
   "tw-disable-compiler": () => import(/* webpackChunkName: "addon-entry-tw-disable-compiler" */ "../addons/tw-disable-compiler/_runtime_entry.js"),
   "editor-stepping": () => import(/* webpackChunkName: "addon-entry-editor-stepping" */ "../addons/editor-stepping/_runtime_entry.js"),
   "eruda": () => import(/* webpackChunkName: "addon-entry-eruda" */ "../addons/eruda/_runtime_entry.js"),
+  "wwh-network-policy": () => import(/* webpackChunkName: "addon-entry-wwh-network-policy" */ "../addons/wwh-network-policy/_runtime_entry.js"),
 };

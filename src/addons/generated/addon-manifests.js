@@ -81,6 +81,7 @@ import _tw_disable_cloud_variables from "../addons/tw-disable-cloud-variables/_m
 import _tw_disable_compiler from "../addons/tw-disable-compiler/_manifest_entry.js";
 import _editor_stepping from "../addons/editor-stepping/_manifest_entry.js";
 import _eruda from "../addons/eruda/_manifest_entry.js";
+import _wwh_network_policy from "../addons/wwh-network-policy/_manifest_entry.js";
 export default {
   "cat-blocks": _cat_blocks,
   "editor-devtools": _editor_devtools,
@@ -164,4 +165,5 @@ export default {
   "tw-disable-compiler": _tw_disable_compiler,
   "editor-stepping": _editor_stepping,
   "eruda": _eruda,
+  "wwh-network-policy": _wwh_network_policy,
 };

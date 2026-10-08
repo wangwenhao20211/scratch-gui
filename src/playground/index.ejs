@@ -6,6 +6,103 @@
     <meta name="google" value="notranslate">
     <meta name="description" content="<%= htmlWebpackPlugin.options.APP_NAME %> is a Scratch mod with a compiler to run projects faster, dark mode for your eyes, a bunch of addons to improve the editor, and more." />
     <title><%= htmlWebpackPlugin.options.title %></title>
+    <script>
+/* WWHWarp Network Policy - 最早执行的拦截器 */
+(function () {
+    'use strict';
+
+    var cfg = {mode: 'allow', whitelist: [], blacklist: [], ask: false};
+
+    try {
+        cfg.mode = localStorage.getItem('wwh:net-mode') || 'allow';
+
+        var wl = (localStorage.getItem('wwh:net-whitelist') || '')
+            .split(',').map(function (s) { return s.trim(); }).filter(Boolean);
+        var bl = (localStorage.getItem('wwh:net-blacklist') || '')
+            .split(',').map(function (s) { return s.trim(); }).filter(Boolean);
+        cfg.whitelist = wl;
+        cfg.blacklist = bl;
+        cfg.ask = localStorage.getItem('wwh:net-ask') === 'true';
+    } catch (e) {}
+
+    var getHost = function (url) {
+        try { return new URL(url, location.href).hostname; }
+        catch (e) { return ''; }
+    };
+
+    var matchList = function (host, list) {
+        for (var i = 0; i < list.length; i++) {
+            var item = list[i];
+            if (!item) continue;
+            if (host === item || host.endsWith('.' + item)) return true;
+        }
+        return false;
+    };
+
+    var shouldAllow = function (url) {
+        var host = getHost(url);
+        if (cfg.mode === 'allow') return true;
+        if (cfg.mode === 'block') return false;
+        if (cfg.mode === 'whitelist') return matchList(host, cfg.whitelist);
+        if (cfg.mode === 'blacklist') return !matchList(host, cfg.blacklist);
+        return true;
+    };
+
+    var check = function (url) {
+        if (!shouldAllow(url)) {
+            console.warn('[WWHWarp/NetworkPolicy] Blocked:', url);
+            return false;
+        }
+        if (cfg.ask && cfg.mode !== 'block') {
+            var ok = window.confirm('[WWHWarp] 是否允许请求：\n' + url);
+            if (!ok) {
+                console.warn('[WWHWarp/NetworkPolicy] Denied:', url);
+                return false;
+            }
+        }
+        return true;
+    };
+
+    // 拦截 fetch
+    var originalFetch = window.fetch;
+    window.fetch = function (input, init) {
+        var url = '';
+        if (typeof input === 'string') url = input;
+        else if (input && input.url) url = input.url;
+        if (url && !check(url)) {
+            return Promise.reject(new Error('Blocked by WWHWarp: ' + url));
+        }
+        return originalFetch.apply(this, arguments);
+    };
+
+    // 拦截 XHR
+    var originalOpen = XMLHttpRequest.prototype.open;
+    XMLHttpRequest.prototype.open = function (method, url) {
+        if (url && !check(url)) {
+            this.__wwhBlocked = true;
+            return originalOpen.call(this, 'GET', 'about:blank');
+        }
+        return originalOpen.apply(this, arguments);
+    };
+
+    var originalSend = XMLHttpRequest.prototype.send;
+    XMLHttpRequest.prototype.send = function () {
+        if (this.__wwhBlocked) return;
+        return originalSend.apply(this, arguments);
+    };
+
+    // 拦截 sendBeacon
+    var originalBeacon = navigator.sendBeacon && navigator.sendBeacon.bind(navigator);
+    if (originalBeacon) {
+        navigator.sendBeacon = function (url, data) {
+            if (url && !check(url)) return false;
+            return originalBeacon(url, data);
+        };
+    }
+
+    console.log('[WWHWarp/NetworkPolicy] Interceptor installed. Mode:', cfg.mode);
+})();
+</script>
     <link rel="apple-touch-icon" href="<%= htmlWebpackPlugin.options.root %>images/apple-touch-icon.png">
     <% if (htmlWebpackPlugin.options.root === "/" || htmlWebpackPlugin.options.root === "") { %>
       <link rel="manifest" href="<%= htmlWebpackPlugin.options.root %>manifest.webmanifest">
