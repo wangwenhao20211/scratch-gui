@@ -19,6 +19,10 @@ const MODAL_FONTS = 'fontsModal';
 const MODAL_UNKNOWN_PLATFORM = 'unknownPlatformModal';
 const MODAL_INVALID_PROJECT = 'invalidProjectModal';
 
+const MODAL_INVALID_PROJECT = 'invalidProjectModal';
+const MODAL_WWH_SECURITY = 'wwhSecurityPanel';
+const MODAL_WWH_NETWORK = 'wwhNetworkPanel';
+
 const initialState = {
     [MODAL_BACKDROP_LIBRARY]: false,
     [MODAL_COSTUME_LIBRARY]: false,
@@ -36,7 +40,10 @@ const initialState = {
     [MODAL_RESTORE_POINTS]: false,
     [MODAL_FONTS]: false,
     [MODAL_UNKNOWN_PLATFORM]: false,
-    [MODAL_INVALID_PROJECT]: false
+    [MODAL_INVALID_PROJECT]: false,
+    [MODAL_INVALID_PROJECT]: false,
+    [MODAL_WWH_SECURITY]: false,
+    [MODAL_WWH_NETWORK]: false
 };
 
 const reducer = function (state, action) {
@@ -168,6 +175,21 @@ const closeUnknownPlatformModal = function () {
 const closeInvalidProjectModal = function () {
     return closeModal(MODAL_INVALID_PROJECT);
 };
+const openWwhSecurityPanel = function () {
+    return openModal(MODAL_WWH_SECURITY);
+};
+
+const openWwhNetworkPanel = function () {
+    return openModal(MODAL_WWH_NETWORK);
+};
+
+const closeWwhSecurityPanel = function () {
+    return closeModal(MODAL_WWH_SECURITY);
+};
+
+const closeWwhNetworkPanel = function () {
+    return closeModal(MODAL_WWH_NETWORK);
+};
 export {
     reducer as default,
     initialState as modalsInitialState,
@@ -204,5 +226,9 @@ export {
     closeRestorePointModal,
     closeFontsModal,
     closeUnknownPlatformModal,
-    closeInvalidProjectModal
+    closeInvalidProjectModal,
+    openWwhSecurityPanel,
+    openWwhNetworkPanel,
+    closeWwhSecurityPanel,
+    closeWwhNetworkPanel
 };

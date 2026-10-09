@@ -1,0 +1,25 @@
+.modalContent {
+    width: 500px;
+    max-width: 90vw;
+}
+
+.body {
+    padding: 1.5rem;
+}
+
+.author {
+    color: #575e75;
+    margin-bottom: 1rem;
+}
+
+.author a {
+    color: #4c97ff;
+}
+
+.notice {
+    padding: 1rem;
+    background: #f5f5f5;
+    border-radius: 4px;
+    color: #575e75;
+    line-height: 1.5;
+}

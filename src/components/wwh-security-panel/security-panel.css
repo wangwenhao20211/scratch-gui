@@ -1,0 +1,50 @@
+.modalContent {
+    width: 500px;
+    max-width: 90vw;
+}
+
+.body {
+    padding: 1rem;
+}
+
+.intro {
+    margin-bottom: 1rem;
+    color: #575e75;
+}
+
+.setting {
+    padding: 0.75rem 0;
+    border-bottom: 1px solid #e6e6e6;
+}
+
+.label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.help {
+    margin-top: 0.5rem;
+    margin-left: 1.75rem;
+    font-size: 0.85rem;
+    color: #575e75;
+    line-height: 1.4;
+}
+
+.section {
+    margin-top: 1.5rem;
+    padding-top: 1rem;
+    border-top: 2px solid #e6e6e6;
+}
+
+.sectionTitle {
+    margin: 0 0 0.5rem;
+    font-size: 1rem;
+}
+
+.comingSoon {
+    color: #888;
+    font-style: italic;
+}

@@ -17,8 +17,6 @@ import {APP_NAME} from '../../lib/brand.js';
 
 const BufferedInput = BufferedInputHOC(Input);
 
-const TRUST_ALL_KEY = 'tw:trust_all_extensions';
-
 const messages = defineMessages({
     title: {
         defaultMessage: 'Advanced Settings',
@@ -331,66 +329,6 @@ const DisableCompiler = props => (
     />
 );
 
-// ============================================================
-// 新增：信任所有扩展
-// ============================================================
-const TrustAllExtensions = () => {
-    const [enabled, setEnabled] = React.useState(() => {
-        try {
-            return localStorage.getItem(TRUST_ALL_KEY) === 'true';
-        } catch (e) {
-            return false;
-        }
-    });
-
-    const handleChange = React.useCallback(e => {
-        const newValue = e.target.checked;
-        if (newValue) {
-            // eslint-disable-next-line no-alert
-            const confirmed = window.confirm(
-                '警告：开启后，任何作品加载的任何扩展都将自动被信任并以非沙箱模式运行。' +
-                '这会让恶意作品有机会破坏你的项目、窃取数据或做其他坏事。' +
-                '请只在确认作品来源可信时临时开启。\n\n确定要开启吗？'
-            );
-            if (!confirmed) {
-                return;
-            }
-        }
-        try {
-            if (newValue) {
-                localStorage.setItem(TRUST_ALL_KEY, 'true');
-            } else {
-                localStorage.removeItem(TRUST_ALL_KEY);
-            }
-        } catch (err) {
-            // ignore
-        }
-        setEnabled(newValue);
-    }, []);
-
-    return (
-        <BooleanSetting
-            value={enabled}
-            onChange={handleChange}
-            label={
-                <FormattedMessage
-                    defaultMessage="信任所有扩展（危险）"
-                    description="Trust all extensions setting label"
-                    id="tw.settingsModal.trustAllExtensions"
-                />
-            }
-            help={
-                <FormattedMessage
-                    // eslint-disable-next-line max-len
-                    defaultMessage="开启后，作品加载任何扩展都将自动被信任，不再弹确认窗口，并且所有扩展都会以非沙箱模式运行。这会带来严重的安全风险，请只在确认作品来源可信时临时开启，用完及时关闭。"
-                    description="Trust all extensions setting help"
-                    id="tw.settingsModal.trustAllExtensionsHelp"
-                />
-            }
-        />
-    );
-};
-
 const CustomStageSize = ({
     customStageSizeEnabled,
     stageWidth,
@@ -568,7 +506,6 @@ const SettingsModalComponent = props => (
                 value={props.disableCompiler}
                 onChange={props.onDisableCompilerChange}
             />
-            <TrustAllExtensions />
             {!props.isEmbedded && (
                 <StoreProjectOptions
                     {...props}

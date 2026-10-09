@@ -50,6 +50,10 @@ import codeIcon from '!../../lib/tw-recolor/build!./icon--code.svg';
 import costumesIcon from '!../../lib/tw-recolor/build!./icon--costumes.svg';
 import soundsIcon from '!../../lib/tw-recolor/build!./icon--sounds.svg';
 
+import WWHSecurityPanel from '../components/wwh-security-panel/security-panel.jsx';
+import WWHNetworkPanel from '../components/wwh-network-panel/network-panel.jsx';
+import {closeWwhSecurityPanel, closeWwhNetworkPanel} from '../reducers/modals';
+
 const messages = defineMessages({
     addExtension: {
         id: 'gui.gui.addExtension',
@@ -159,6 +163,10 @@ const GUIComponent = props => {
         unknownPlatformModalVisible,
         invalidProjectModalVisible,
         vm,
+        wwhSecurityPanelVisible,
+wwhNetworkPanelVisible,
+onRequestCloseWwhSecurityPanel,
+onRequestCloseWwhNetworkPanel,
         ...componentProps
     } = omit(props, 'dispatch');
     if (children) {
@@ -186,6 +194,8 @@ const GUIComponent = props => {
             <React.Fragment>
                 <TWSecurityManager securityManager={securityManager} />
                 <TWRestorePointManager />
+                {wwhSecurityPanelVisible && <WWHSecurityPanel onClose={onRequestCloseWwhSecurityPanel} />}
+                {wwhNetworkPanelVisible && <WWHNetworkPanel onClose={onRequestCloseWwhNetworkPanel} />}
                 {usernameModalVisible && <TWUsernameModal />}
                 {settingsModalVisible && <TWSettingsModal />}
                 {customExtensionModalVisible && <TWCustomExtensionModal />}
@@ -540,7 +550,11 @@ GUIComponent.propTypes = {
     fontsModalVisible: PropTypes.bool,
     unknownPlatformModalVisible: PropTypes.bool,
     invalidProjectModalVisible: PropTypes.bool,
-    vm: PropTypes.instanceOf(VM).isRequired
+    vm: PropTypes.instanceOf(VM).isRequired,
+    wwhSecurityPanelVisible: PropTypes.bool,
+wwhNetworkPanelVisible: PropTypes.bool,
+onRequestCloseWwhSecurityPanel: PropTypes.func,
+onRequestCloseWwhNetworkPanel: PropTypes.func,
 };
 GUIComponent.defaultProps = {
     backpackHost: null,
@@ -572,9 +586,17 @@ const mapStateToProps = state => ({
     // This is the button's mode, as opposed to the actual current state
     blocksId: state.scratchGui.timeTravel.year.toString(),
     stageSizeMode: state.scratchGui.stageSize.stageSize,
-    theme: state.scratchGui.theme.theme
+    theme: state.scratchGui.theme.theme,
+    wwhSecurityPanelVisible: state.scratchGui.modals.wwhSecurityPanel,
+wwhNetworkPanelVisible: state.scratchGui.modals.wwhNetworkPanel,
+});
+
+const mapDispatchToProps = dispatch => ({
+    onRequestCloseWwhSecurityPanel: () => dispatch(closeWwhSecurityPanel()),
+    onRequestCloseWwhNetworkPanel: () => dispatch(closeWwhNetworkPanel())
 });
 
 export default injectIntl(connect(
-    mapStateToProps
+    mapStateToProps,
+    mapDispatchToProps
 )(GUIComponent));

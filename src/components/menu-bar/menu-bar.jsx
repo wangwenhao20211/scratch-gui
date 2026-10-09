@@ -34,7 +34,14 @@ import CloudVariablesToggler from '../../containers/tw-cloud-toggler.jsx';
 import TWSaveStatus from './tw-save-status.jsx';
 import TWNews from './tw-news.jsx';
 
-import {openTipsLibrary, openSettingsModal, openRestorePointModal} from '../../reducers/modals';
+import {
+    openTipsLibrary,
+    openSettingsModal,
+    openRestorePointModal,
+    openWwhSecurityPanel,
+    openWwhNetworkPanel
+} from '../../reducers/modals';
+
 import {setPlayer} from '../../reducers/mode';
 import {
     isTimeTravel220022BC,
@@ -548,6 +555,8 @@ class MenuBar extends React.Component {
                             canChangeLanguage={this.props.canChangeLanguage}
                             canChangeTheme={this.props.canChangeTheme}
                             isRtl={this.props.isRtl}
+                            onClickWwhSecurityPanel={this.props.onClickWwhSecurityPanel}
+                            onClickWwhNetworkPanel={this.props.onClickWwhNetworkPanel}
                             onClickDesktopSettings={
                                 this.props.onClickDesktopSettings &&
                                 this.handleClickDesktopSettings
@@ -1242,6 +1251,14 @@ const mapDispatchToProps = dispatch => ({
         dispatch(closeEditMenu());
         dispatch(openSettingsModal());
     },
+    onClickWwhSecurityPanel: () => {
+    dispatch(closeSettingsMenu());
+    dispatch(openWwhSecurityPanel());
+},
+onClickWwhNetworkPanel: () => {
+    dispatch(closeSettingsMenu());
+    dispatch(openWwhNetworkPanel());
+},
     onRequestCloseSettings: () => dispatch(closeSettingsMenu()),
     onClickNew: needSave => {
         dispatch(requestNewProject(needSave));

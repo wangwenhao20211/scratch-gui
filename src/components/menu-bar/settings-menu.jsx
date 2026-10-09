@@ -17,11 +17,15 @@ import styles from './settings-menu.css';
 import dropdownCaret from './dropdown-caret.svg';
 import settingsIcon from './icon--settings.svg';
 
+import {MenuItem} from '../menu/menu.jsx';
+
 const SettingsMenu = ({
     canChangeLanguage,
     canChangeTheme,
     isRtl,
     onClickDesktopSettings,
+    onClickWwhSecurityPanel,
+    onClickWwhNetworkPanel,
     onOpenCustomSettings,
     onRequestClose,
     onRequestOpen,
@@ -67,6 +71,20 @@ const SettingsMenu = ({
                         <TWAccentThemeMenu />
                     </React.Fragment>
                 )}
+                <MenuItem onClick={onClickWwhSecurityPanel}>
+    <FormattedMessage
+        defaultMessage="扩展安全设置"
+        description="Open extension security panel"
+        id="wwh.menuBar.security"
+    />
+</MenuItem>
+<MenuItem onClick={onClickWwhNetworkPanel}>
+    <FormattedMessage
+        defaultMessage="网络请求管理"
+        description="Open network request panel"
+        id="wwh.menuBar.network"
+    />
+</MenuItem>
                 {onClickDesktopSettings && <TWDesktopSettings onClick={onClickDesktopSettings} />}
             </MenuSection>
         </MenuBarMenu>
@@ -81,7 +99,9 @@ SettingsMenu.propTypes = {
     onOpenCustomSettings: PropTypes.func,
     onRequestClose: PropTypes.func,
     onRequestOpen: PropTypes.func,
-    settingsMenuOpen: PropTypes.bool
+    settingsMenuOpen: PropTypes.bool,
+    onClickWwhSecurityPanel: PropTypes.func,
+    onClickWwhNetworkPanel: PropTypes.func
 };
 
 export default SettingsMenu;
