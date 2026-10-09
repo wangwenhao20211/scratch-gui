@@ -50,9 +50,9 @@ import codeIcon from '!../../lib/tw-recolor/build!./icon--code.svg';
 import costumesIcon from '!../../lib/tw-recolor/build!./icon--costumes.svg';
 import soundsIcon from '!../../lib/tw-recolor/build!./icon--sounds.svg';
 
-import WWHSecurityPanel from '../components/wwh-security-panel/security-panel.jsx';
-import WWHNetworkPanel from '../components/wwh-network-panel/network-panel.jsx';
-import {closeWwhSecurityPanel, closeWwhNetworkPanel} from '../reducers/modals';
+import WWHSecurityPanel from '../wwh-security-panel/security-panel.jsx';
+import WWHNetworkPanel from '../wwh-network-panel/network-panel.jsx';
+import {closeWwhSecurityPanel, closeWwhNetworkPanel} from '../../reducers/modals';
 
 const messages = defineMessages({
     addExtension: {
