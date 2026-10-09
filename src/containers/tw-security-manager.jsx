@@ -40,6 +40,28 @@ const setTrustAllEnabled = enabled => {
     }
 };
 
+const ALLOW_THIRD_PARTY_KEY = 'tw:allow_third_party_unsandboxed';
+
+const isAllowThirdPartyUnsandboxed = () => {
+    try {
+        return localStorage.getItem(ALLOW_THIRD_PARTY_KEY) === 'true';
+    } catch (e) {
+        return false;
+    }
+};
+
+const setAllowThirdPartyUnsandboxed = enabled => {
+    try {
+        if (enabled) {
+            localStorage.setItem(ALLOW_THIRD_PARTY_KEY, 'true');
+        } else {
+            localStorage.removeItem(ALLOW_THIRD_PARTY_KEY);
+        }
+    } catch (e) {
+        // ignore
+    }
+};
+
 /**
  * Set of extension URLs that the user has manually trusted to load unsandboxed.
  */
@@ -54,20 +76,25 @@ const manuallyTrustExtension = url => {
  * @param {string} url URL as a string.
  * @returns {boolean} True if the extension can is trusted
  */
-const isTrustedExtension = url => (
-    // 全局“信任所有扩展”开关开启时，一切扩展都视为可信
-    isTrustAllEnabled() ||
 
-    // Always trust our official extension repostiory.
+const isBaseTrusted = url => (
     url.startsWith('https://extensions.turbowarp.org/') ||
-
     url.startsWith('https://turbowarp-extensions.pages.dev/') ||
-
-    // For development.
     url.startsWith('http://localhost:8000/') ||
-
     extensionsTrustedByUser.has(url)
 );
+
+const isTrustedForAutoLoad = url => (
+    isBaseTrusted(url) ||
+    isTrustAllEnabled()
+);
+
+const isTrustedForNoSandbox = url => (
+    isBaseTrusted(url) ||
+    isAllowThirdPartyUnsandboxed()
+);
+
+const isTrustedExtension = url => isTrustedForNoSandbox(url);
 
 /**
  * Set of fetch resource hosts that were manually trusted by the user.
@@ -94,7 +121,7 @@ const isUntrustedPath = parsed => (
  * @returns {boolean} True if the URL is part of the builtin set of URLs to always trust fetching from.
  */
 const isAlwaysTrustedForFetching = parsed => (
-    isTrustedExtension(parsed.href) ||
+    isTrustedForNoSandbox(parsed.href) ||
 
     parsed.origin === 'https://turbowarp.org' ||
     parsed.origin.endsWith('.turbowarp.org') ||
@@ -247,13 +274,14 @@ class TWSecurityManagerComponent extends React.Component {
      * @param {string} url The extension's URL
      * @returns {string} The VM worker mode to use
      */
+
     getSandboxMode (url) {
-        if (isTrustedExtension(url)) {
-            log.info(`Loading extension ${url} unsandboxed`);
-            return 'unsandboxed';
-        }
-        return 'iframe';
+    if (isTrustedForNoSandbox(url)) {
+        log.info(`Loading extension ${url} unsandboxed`);
+        return 'unsandboxed';
     }
+    return 'iframe';
+}
 
     handleChangeUnsandboxed (e) {
         const checked = e.target.checked;
@@ -270,7 +298,7 @@ class TWSecurityManagerComponent extends React.Component {
      * @returns {Promise<boolean>} Whether the extension can be loaded
      */
     async canLoadExtensionFromProject (url) {
-        if (isTrustedExtension(url)) {
+        if (isTrustedForAutoLoad(url)) {
             log.info(`Loading extension ${url} automatically`);
             return true;
         }
@@ -468,5 +496,7 @@ export {
     manuallyTrustExtension,
     isTrustedExtension,
     isTrustAllEnabled,
-    setTrustAllEnabled
+    setTrustAllEnabled,
+    isAllowThirdPartyUnsandboxed,
+    setAllowThirdPartyUnsandboxed
 };
