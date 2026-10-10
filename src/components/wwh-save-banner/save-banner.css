@@ -1,0 +1,113 @@
+.banner {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 100000;
+    background: #ffffff;
+    border-bottom: 2px solid #4c97ff;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 14px;
+    color: #575e75;
+    animation: wwhSlideDown 0.3s ease-out;
+}
+
+@keyframes wwhSlideDown {
+    from {
+        transform: translateY(-100%);
+    }
+    to {
+        transform: translateY(0);
+    }
+}
+
+.header {
+    display: flex;
+    align-items: center;
+    padding: 8px 16px;
+    gap: 10px;
+}
+
+.icon {
+    font-size: 16px;
+    font-weight: bold;
+    width: 18px;
+    text-align: center;
+}
+
+.saving .icon {
+    color: #4c97ff;
+}
+
+.done .icon {
+    color: #4cbf56;
+}
+
+.error .icon {
+    color: #ff4c4c;
+}
+
+.text {
+    flex: 1;
+    font-size: 14px;
+}
+
+.percent {
+    font-size: 13px;
+    font-weight: bold;
+    color: #575e75;
+    min-width: 40px;
+    text-align: right;
+}
+
+.button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    color: #575e75;
+    padding: 2px 8px;
+    line-height: 1;
+}
+
+.button:hover {
+    color: #4c97ff;
+}
+
+.progressBar {
+    height: 4px;
+    background: #e6e6e6;
+    overflow: hidden;
+}
+
+.progressFill {
+    height: 100%;
+    background: #4c97ff;
+    transition: width 0.2s ease-out;
+}
+
+.done {
+    border-bottom-color: #4cbf56;
+}
+
+.done .progressFill {
+    background: #4cbf56;
+}
+
+.error {
+    border-bottom-color: #ff4c4c;
+}
+
+.errorMessage {
+    padding: 8px 16px;
+    font-size: 12px;
+    color: #575e75;
+    background: #fff5f5;
+    border-top: 1px solid #ffd6d6;
+}
+
+.collapsed .progressBar,
+.collapsed .errorMessage {
+    display: none;
+}

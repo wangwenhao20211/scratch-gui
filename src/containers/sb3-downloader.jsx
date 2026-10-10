@@ -10,6 +10,9 @@ import {setFileHandle} from '../reducers/tw';
 import {getIsShowingProject} from '../reducers/project-state';
 import log from '../lib/log';
 
+import {createPortal} from 'react-dom';
+import SaveBanner from '../components/wwh-save-banner/save-banner.jsx';
+
 // from sb-file-uploader-hoc.jsx
 const getProjectTitleFromFilename = fileInputFilename => {
     if (!fileInputFilename) return '';
@@ -62,15 +65,57 @@ const concatenateByteArrays = arrays => {
  * )}</SB3Downloader>
  */
 class SB3Downloader extends React.Component {
+    
     constructor (props) {
-        super(props);
-        bindAll(this, [
-            'downloadProject',
-            'saveAsNew',
-            'saveToLastFile',
-            'saveToLastFileOrNew'
-        ]);
-    }
+    super(props);
+    bindAll(this, [
+        'downloadProject',
+        'saveAsNew',
+        'saveToLastFile',
+        'saveToLastFileOrNew',
+        'handleSaveProgress',
+        'handleSaveDone',
+        'handleSaveError',
+        'dismissBanner'
+    ]);
+    this.state = {
+        saveState: 'idle',
+        saveProgress: 0,
+        saveError: null
+    };
+}
+
+handleSaveProgress (progress) {
+    this.setState({
+        saveState: 'saving',
+        saveProgress: progress
+    });
+}
+
+handleSaveDone () {
+    this.setState({
+        saveState: 'done',
+        saveProgress: 1,
+        saveError: null
+    });
+}
+
+handleSaveError (error) {
+    this.setState({
+        saveState: 'error',
+        saveProgress: 0,
+        saveError: String(error && error.message ? error.message : error)
+    });
+}
+
+dismissBanner () {
+    this.setState({
+        saveState: 'idle',
+        saveProgress: 0,
+        saveError: null
+    });
+}
+
     startedSaving () {
         this.props.onShowSavingAlert();
     }
@@ -82,15 +127,26 @@ class SB3Downloader extends React.Component {
         }
     }
     downloadProject () {
-        if (!this.props.canSaveProject) {
-            return;
-        }
-        this.startedSaving();
-        this.props.saveProjectSb3().then(content => {
-            this.finishedSaving();
-            downloadBlob(this.props.projectFilename, content);
-        });
+    if (!this.props.canSaveProject) {
+        return;
     }
+    this.startedSaving();
+    this.setState({
+        saveState: 'saving',
+        saveProgress: 0,
+        saveError: null
+    });
+    this.props.saveProjectSb3('blob', progress => {
+        this.handleSaveProgress(progress);
+    }).then(content => {
+        this.handleSaveDone();
+        this.finishedSaving();
+        downloadBlob(this.props.projectFilename, content);
+    }).catch(e => {
+        log.error(e);
+        this.handleSaveError(e);
+    });
+}
     async saveAsNew () {
         if (!this.props.canSaveProject) {
             return;
@@ -245,25 +301,38 @@ class SB3Downloader extends React.Component {
         this.props.onShowSaveErrorAlert();
     }
     render () {
-        const {
-            children
-        } = this.props;
-        return children(
-            this.props.className,
-            this.downloadProject,
-            this.props.showSaveFilePicker ? {
-                available: true,
-                name: this.props.fileHandle ? this.props.fileHandle.name : null,
-                saveAsNew: this.saveAsNew,
-                saveToLastFile: this.saveToLastFile,
-                saveToLastFileOrNew: this.saveToLastFileOrNew,
-                smartSave: this.saveToLastFileOrNew
-            } : {
-                available: false,
-                smartSave: this.downloadProject
-            }
-        );
-    }
+    const {
+        children
+    } = this.props;
+    return (
+        <React.Fragment>
+            {children(
+                this.props.className,
+                this.downloadProject,
+                this.props.showSaveFilePicker ? {
+                    available: true,
+                    name: this.props.fileHandle ? this.props.fileHandle.name : null,
+                    saveAsNew: this.saveAsNew,
+                    saveToLastFile: this.saveToLastFile,
+                    saveToLastFileOrNew: this.saveToLastFileOrNew,
+                    smartSave: this.saveToLastFileOrNew
+                } : {
+                    available: false,
+                    smartSave: this.downloadProject
+                }
+            )}
+            {createPortal(
+                <SaveBanner
+                    state={this.state.saveState}
+                    progress={this.state.saveProgress}
+                    errorMessage={this.state.saveError}
+                    onDismiss={this.dismissBanner}
+                />,
+                document.body
+            )}
+        </React.Fragment>
+    );
+}
 }
 
 const getProjectFilename = (curTitle, defaultTitle) => {
