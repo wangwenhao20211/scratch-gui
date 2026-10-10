@@ -1,0 +1,30 @@
+WWHWarp
+=======
+
+This project is a fork of TurboWarp (https://github.com/TurboWarp/scratch-gui).
+Original work Copyright (C) TurboWarp contributors, licensed under GPL-3.0.
+Original Scratch work Copyright (C) MIT, licensed under MIT.
+
+Modifications Copyright (C) 2026 wangwenhao20211.
+
+This modified version (WWHWarp) includes the following major changes:
+- Custom extension library ("Wwh extensions" tab)
+- Independent security switches for extensions
+- Custom accent themes (orange, brown)
+- Custom network request management addon
+- Custom translations and branding
+- Simplified homepage
+- Additional UI panels (security, network)
+
+Full source code is available at:
+https://github.com/wangwenhao20211/scratch-gui
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU General Public License for more details.
