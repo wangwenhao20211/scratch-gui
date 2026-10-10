@@ -4,7 +4,7 @@ import {FormattedMessage} from 'react-intl';
 
 import LanguageMenu from './language-menu.jsx';
 import MenuBarMenu from './menu-bar-menu.jsx';
-import {MenuSection} from '../menu/menu.jsx';
+import {MenuSection, MenuItem, Submenu} from '../menu/menu.jsx';
 import MenuLabel from './tw-menu-label.jsx';
 import TWAccentThemeMenu from './tw-theme-accent.jsx';
 import TWGuiThemeMenu from './tw-theme-gui.jsx';
@@ -17,7 +17,51 @@ import styles from './settings-menu.css';
 import dropdownCaret from './dropdown-caret.svg';
 import settingsIcon from './icon--settings.svg';
 
-import {MenuItem} from '../menu/menu.jsx';
+const WwhPanelsMenu = ({onOpenSecurity, onOpenNetwork}) => {
+    const [isOpen, setIsOpen] = React.useState(false);
+    return (
+        <MenuItem expanded={isOpen}>
+            <div
+                className={styles.option}
+                onClick={() => setIsOpen(!isOpen)}
+            >
+                <span className={styles.submenuLabel}>
+                    <FormattedMessage
+                        defaultMessage="安全见解"
+                        description="Security panel submenu label"
+                        id="wwh.menuBar.security"
+                    />
+                </span>
+                <img
+                    className={styles.expandCaret}
+                    src={dropdownCaret}
+                    draggable={false}
+                />
+            </div>
+            <Submenu place="right">
+                <MenuItem onClick={onOpenSecurity}>
+                    <FormattedMessage
+                        defaultMessage="扩展安全设置"
+                        description="Open extension security panel"
+                        id="wwh.menuBar.securityPanel"
+                    />
+                </MenuItem>
+                <MenuItem onClick={onOpenNetwork}>
+                    <FormattedMessage
+                        defaultMessage="网络请求管理"
+                        description="Open network request panel"
+                        id="wwh.menuBar.networkPanel"
+                    />
+                </MenuItem>
+            </Submenu>
+        </MenuItem>
+    );
+};
+
+WwhPanelsMenu.propTypes = {
+    onOpenSecurity: PropTypes.func,
+    onOpenNetwork: PropTypes.func
+};
 
 const SettingsMenu = ({
     canChangeLanguage,
@@ -71,20 +115,10 @@ const SettingsMenu = ({
                         <TWAccentThemeMenu />
                     </React.Fragment>
                 )}
-                <MenuItem onClick={onClickWwhSecurityPanel}>
-    <FormattedMessage
-        defaultMessage="扩展安全设置"
-        description="Open extension security panel"
-        id="wwh.menuBar.security"
-    />
-</MenuItem>
-<MenuItem onClick={onClickWwhNetworkPanel}>
-    <FormattedMessage
-        defaultMessage="网络请求管理"
-        description="Open network request panel"
-        id="wwh.menuBar.network"
-    />
-</MenuItem>
+                <WwhPanelsMenu
+                    onOpenSecurity={onClickWwhSecurityPanel}
+                    onOpenNetwork={onClickWwhNetworkPanel}
+                />
                 {onClickDesktopSettings && <TWDesktopSettings onClick={onClickDesktopSettings} />}
             </MenuSection>
         </MenuBarMenu>

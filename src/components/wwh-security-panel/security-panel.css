@@ -1,15 +1,19 @@
 .modalContent {
     width: 500px;
     max-width: 90vw;
+    background-color: #ffffff; /* 核心修复：强制白底 */
 }
 
 .body {
     padding: 1rem;
+    background-color: #ffffff;
+    color: #575e75;
 }
 
 .intro {
     margin-bottom: 1rem;
     color: #575e75;
+    font-size: 0.9rem;
 }
 
 .setting {
@@ -23,6 +27,7 @@
     gap: 0.5rem;
     cursor: pointer;
     font-weight: bold;
+    color: #575e75;
 }
 
 .help {
@@ -33,18 +38,37 @@
     line-height: 1.4;
 }
 
+/* 学习原版的 Header 样式 */
+.header {
+    font-size: 1.1rem;
+    font-weight: bold;
+    color: #575e75;
+    margin-top: 1.5rem;
+    margin-bottom: 0.5rem;
+    border-bottom: 1px solid #e6e6e6;
+    padding-bottom: 0.25rem;
+    display: flex;
+    align-items: center;
+}
+
 .section {
     margin-top: 1.5rem;
-    padding-top: 1rem;
-    border-top: 2px solid #e6e6e6;
 }
 
 .sectionTitle {
-    margin: 0 0 0.5rem;
     font-size: 1rem;
+    font-weight: bold;
+    color: #575e75;
+    margin-bottom: 0.5rem;
 }
 
 .comingSoon {
     color: #888;
     font-style: italic;
+    font-size: 0.85rem;
+}
+
+/* 去掉原版可能存在的红色背景 */
+.modalContent > div {
+    background-color: #ffffff !important;
 }
