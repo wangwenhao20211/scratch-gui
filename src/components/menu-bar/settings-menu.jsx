@@ -1,6 +1,7 @@
 import PropTypes from 'prop-types';
 import React from 'react';
 import {FormattedMessage} from 'react-intl';
+import {connect} from 'react-redux';
 
 import LanguageMenu from './language-menu.jsx';
 import MenuBarMenu from './menu-bar-menu.jsx';
@@ -17,13 +18,31 @@ import styles from './settings-menu.css';
 import dropdownCaret from './dropdown-caret.svg';
 import settingsIcon from './icon--settings.svg';
 
-const WwhPanelsMenu = ({onOpenSecurity, onOpenNetwork}) => {
-    const [isOpen, setIsOpen] = React.useState(false);
+import {
+    openWwhSecurityMenu,
+    closeWwhSecurityMenu,
+    wwhSecurityMenuOpen
+} from '../../reducers/menus';
+
+const WwhPanelsMenuComponent = ({
+    isOpen,
+    onOpen,
+    onClose,
+    onOpenSecurity,
+    onOpenNetwork
+}) => {
+    const handleToggle = () => {
+        if (isOpen) {
+            onClose();
+        } else {
+            onOpen();
+        }
+    };
     return (
         <MenuItem expanded={isOpen}>
             <div
                 className={styles.option}
-                onClick={() => setIsOpen(!isOpen)}
+                onClick={handleToggle}
             >
                 <span className={styles.submenuLabel}>
                     <FormattedMessage
@@ -58,10 +77,23 @@ const WwhPanelsMenu = ({onOpenSecurity, onOpenNetwork}) => {
     );
 };
 
-WwhPanelsMenu.propTypes = {
+WwhPanelsMenuComponent.propTypes = {
+    isOpen: PropTypes.bool,
+    onOpen: PropTypes.func,
+    onClose: PropTypes.func,
     onOpenSecurity: PropTypes.func,
     onOpenNetwork: PropTypes.func
 };
+
+const WwhPanelsMenu = connect(
+    state => ({
+        isOpen: wwhSecurityMenuOpen(state)
+    }),
+    dispatch => ({
+        onOpen: () => dispatch(openWwhSecurityMenu()),
+        onClose: () => dispatch(closeWwhSecurityMenu())
+    })
+)(WwhPanelsMenuComponent);
 
 const SettingsMenu = ({
     canChangeLanguage,

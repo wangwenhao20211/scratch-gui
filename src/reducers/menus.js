@@ -13,6 +13,8 @@ const MENU_ACCENT = 'accentMenu';
 const MENU_BLOCKS_THEME = 'blocksThemeMenu';
 const MENU_ERRORS = 'errorsMenu';
 
+const WWH_SECURITY_MENU = 'wwhSecurityMenu';
+
 class Menu {
     constructor (id) {
         this.id = id;
@@ -48,7 +50,6 @@ class Menu {
     }
 }
 
-// Structure of nested menus, used for collapsing submenus logic.
 const rootMenu = new Menu('root')
     .addChild(new Menu(MENU_ERRORS))
     .addChild(
@@ -56,6 +57,7 @@ const rootMenu = new Menu('root')
             .addChild(new Menu(MENU_LANGUAGE))
             .addChild(new Menu(MENU_ACCENT))
             .addChild(new Menu(MENU_BLOCKS_THEME))
+            .addChild(new Menu(WWH_SECURITY_MENU))
     )
     .addChild(new Menu(MENU_FILE))
     .addChild(new Menu(MENU_EDIT))
@@ -76,7 +78,8 @@ const initialState = {
     [MENU_SETTINGS]: false,
     [MENU_ACCENT]: false,
     [MENU_BLOCKS_THEME]: false,
-    [MENU_ERRORS]: false
+    [MENU_ERRORS]: false,
+    [WWH_SECURITY_MENU]: false
 };
 
 const reducer = function (state, action) {
@@ -84,7 +87,6 @@ const reducer = function (state, action) {
     switch (action.type) {
     case OPEN_MENU: {
         const menu = rootMenu.findById(action.menu);
-        // Close siblings when opening a menu
         const toClose = menu.siblings().flatMap(sibling => [sibling, ...sibling.descendants()]);
 
         return {
@@ -95,7 +97,6 @@ const reducer = function (state, action) {
     }
     case CLOSE_MENU: {
         const menu = rootMenu.findById(action.menu);
-        // Close this menu and any submenus
         const toClose = [menu, ...menu.descendants()];
 
         return {
@@ -107,10 +108,12 @@ const reducer = function (state, action) {
         return state;
     }
 };
+
 const openMenu = menu => ({
     type: OPEN_MENU,
     menu: menu
 });
+
 const closeMenu = menu => ({
     type: CLOSE_MENU,
     menu: menu
@@ -160,6 +163,10 @@ const openErrorsMenu = () => openMenu(MENU_ERRORS);
 const closeErrorsMenu = () => closeMenu(MENU_ERRORS);
 const errorsMenuOpen = state => state.scratchGui.menus[MENU_ERRORS];
 
+const openWwhSecurityMenu = () => openMenu(WWH_SECURITY_MENU);
+const closeWwhSecurityMenu = () => closeMenu(WWH_SECURITY_MENU);
+const wwhSecurityMenuOpen = state => state.scratchGui.menus[WWH_SECURITY_MENU];
+
 export {
     reducer as default,
     initialState as menuInitialState,
@@ -195,5 +202,8 @@ export {
     blocksThemeMenuOpen,
     openErrorsMenu,
     closeErrorsMenu,
-    errorsMenuOpen
+    errorsMenuOpen,
+    openWwhSecurityMenu,
+    closeWwhSecurityMenu,
+    wwhSecurityMenuOpen
 };
