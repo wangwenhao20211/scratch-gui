@@ -19,7 +19,6 @@ const MODAL_FONTS = 'fontsModal';
 const MODAL_UNKNOWN_PLATFORM = 'unknownPlatformModal';
 const MODAL_INVALID_PROJECT = 'invalidProjectModal';
 
-const MODAL_INVALID_PROJECT = 'invalidProjectModal';
 const MODAL_WWH_SECURITY = 'wwhSecurityPanel';
 const MODAL_WWH_NETWORK = 'wwhNetworkPanel';
 
