@@ -4970,7 +4970,8 @@
         "tw.viewOnScratch": "在 Scratch 网站上查看作品",
         "tw.accent.orange": "橙色",
         "tw.accent.brown": "棕色",
-        "wwh.suggestButton": "建议 {APP_NAME}"
+        "wwh.suggestButton": "建议 {APP_NAME}",
+        "gui.menuBar.language": "语言"
     },
     "zh-tw": {
         "tw.alerts.lostPeripheralConnection": "與{extensionName}的連線中斷了。",
