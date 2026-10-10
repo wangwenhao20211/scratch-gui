@@ -7,7 +7,8 @@ const SaveBannerContainer = () => {
     const [status, setStatus] = useState({
         state: 'idle',
         progress: 0,
-        error: null
+        error: null,
+        currentFile: null
     });
 
     useEffect(() => {
@@ -19,8 +20,9 @@ const SaveBannerContainer = () => {
         <SaveBanner
             state={status.state}
             progress={status.progress}
+            currentFile={status.currentFile}
             errorMessage={status.error}
-            onDismiss={() => setSaveStatus('idle', 0, null)}
+            onDismiss={() => setSaveStatus('idle', 0, null, null)}
         />,
         document.body
     );

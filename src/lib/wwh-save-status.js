@@ -1,14 +1,10 @@
-/**
- * 全局保存状态。用于 SB3Downloader 组件可能被卸载时，
- * 横幅仍然能正常显示进度。
- */
-
 const listeners = new Set();
 
 let currentStatus = {
     state: 'idle',
     progress: 0,
-    error: null
+    error: null,
+    currentFile: null
 };
 
 const notify = () => {
@@ -17,8 +13,8 @@ const notify = () => {
     }
 };
 
-const setSaveStatus = (state, progress = 0, error = null) => {
-    currentStatus = {state, progress, error};
+const setSaveStatus = (state, progress = 0, error = null, currentFile = null) => {
+    currentStatus = {state, progress, error, currentFile};
     notify();
 };
 
@@ -32,4 +28,8 @@ const subscribeSaveStatus = listener => {
     };
 };
 
-export {setSaveStatus, getSaveStatus, subscribeSaveStatus};
+export {
+    setSaveStatus,
+    getSaveStatus,
+    subscribeSaveStatus
+};

@@ -41,6 +41,6 @@ jobs:
           if git diff --cached --quiet; then
             echo "No changes after formatting"
           else
-            git commit -m "style: auto-format code"
+            git commit -m "style: auto-format code [skip ci]"
             git push
           fi
