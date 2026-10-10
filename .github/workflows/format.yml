@@ -1,0 +1,46 @@
+name: Auto Format
+
+on:
+  push:
+    branches:
+      - develop
+
+jobs:
+  format:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Prettier
+        run: npm install --no-save prettier
+
+      - name: Format changed files
+        run: |
+          # 只格式化本次提交改动的文件
+          git fetch origin ${{ github.ref_name }} --depth=2 || true
+          CHANGED=$(git diff --name-only HEAD~1 HEAD -- '*.js' '*.jsx' '*.json' | grep -v node_modules || true)
+          if [ -z "$CHANGED" ]; then
+            echo "No files to format"
+            exit 0
+          fi
+          npx prettier --write $CHANGED
+
+      - name: Commit formatted code
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "No changes after formatting"
+          else
+            git commit -m "style: auto-format code"
+            git push
+          fi

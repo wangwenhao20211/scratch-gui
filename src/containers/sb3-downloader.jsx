@@ -9,24 +9,15 @@ import {showStandardAlert, showAlertWithTimeout} from '../reducers/alerts';
 import {setFileHandle} from '../reducers/tw';
 import {getIsShowingProject} from '../reducers/project-state';
 import log from '../lib/log';
+import {setSaveStatus} from '../lib/wwh-save-status.js';
 
-import {createPortal} from 'react-dom';
-import SaveBanner from '../components/wwh-save-banner/save-banner.jsx';
-
-// from sb-file-uploader-hoc.jsx
 const getProjectTitleFromFilename = fileInputFilename => {
     if (!fileInputFilename) return '';
-    // only parse title with valid scratch project extensions
-    // (.sb, .sb2, and .sb3)
     const matches = fileInputFilename.match(/^(.*)\.sb[23]?$/);
     if (!matches) return '';
-    return matches[1].substring(0, 100); // truncate project title to max 100 chars
+    return matches[1].substring(0, 100);
 };
 
-/**
- * @param {Uint8Array[]} arrays List of byte arrays
- * @returns {number} Total length of the arrays
- */
 const getLengthOfByteArrays = arrays => {
     let length = 0;
     for (let i = 0; i < arrays.length; i++) {
@@ -35,10 +26,6 @@ const getLengthOfByteArrays = arrays => {
     return length;
 };
 
-/**
- * @param {Uint8Array[]} arrays List of byte arrays
- * @returns {Uint8Array} One big array containing all of the little arrays in order.
- */
 const concatenateByteArrays = arrays => {
     const totalLength = getLengthOfByteArrays(arrays);
     const newArray = new Uint8Array(totalLength);
@@ -50,75 +37,21 @@ const concatenateByteArrays = arrays => {
     return newArray;
 };
 
-/**
- * Project saver component passes a downloadProject function to its child.
- * It expects this child to be a function with the signature
- *     function (downloadProject, props) {}
- * The component can then be used to attach project saving functionality
- * to any other component:
- *
- * <SB3Downloader>{(downloadProject, props) => (
- *     <MyCoolComponent
- *         onClick={downloadProject}
- *         {...props}
- *     />
- * )}</SB3Downloader>
- */
 class SB3Downloader extends React.Component {
-    
     constructor (props) {
-    super(props);
-    bindAll(this, [
-        'downloadProject',
-        'saveAsNew',
-        'saveToLastFile',
-        'saveToLastFileOrNew',
-        'handleSaveProgress',
-        'handleSaveDone',
-        'handleSaveError',
-        'dismissBanner'
-    ]);
-    this.state = {
-        saveState: 'idle',
-        saveProgress: 0,
-        saveError: null
-    };
-}
-
-handleSaveProgress (progress) {
-    this.setState({
-        saveState: 'saving',
-        saveProgress: progress
-    });
-}
-
-handleSaveDone () {
-    this.setState({
-        saveState: 'done',
-        saveProgress: 1,
-        saveError: null
-    });
-}
-
-handleSaveError (error) {
-    this.setState({
-        saveState: 'error',
-        saveProgress: 0,
-        saveError: String(error && error.message ? error.message : error)
-    });
-}
-
-dismissBanner () {
-    this.setState({
-        saveState: 'idle',
-        saveProgress: 0,
-        saveError: null
-    });
-}
+        super(props);
+        bindAll(this, [
+            'downloadProject',
+            'saveAsNew',
+            'saveToLastFile',
+            'saveToLastFileOrNew'
+        ]);
+    }
 
     startedSaving () {
         this.props.onShowSavingAlert();
     }
+
     finishedSaving () {
         this.props.onProjectUnchanged();
         this.props.onShowSaveSuccessAlert();
@@ -126,27 +59,25 @@ dismissBanner () {
             this.props.onSaveFinished();
         }
     }
+
     downloadProject () {
-    if (!this.props.canSaveProject) {
-        return;
+        if (!this.props.canSaveProject) {
+            return;
+        }
+        this.startedSaving();
+        setSaveStatus('saving', 0, null);
+        this.props.saveProjectSb3('blob', progress => {
+            setSaveStatus('saving', progress, null);
+        }).then(content => {
+            setSaveStatus('done', 1, null);
+            this.finishedSaving();
+            downloadBlob(this.props.projectFilename, content);
+        }).catch(e => {
+            log.error(e);
+            setSaveStatus('error', 0, String(e && e.message ? e.message : e));
+        });
     }
-    this.startedSaving();
-    this.setState({
-        saveState: 'saving',
-        saveProgress: 0,
-        saveError: null
-    });
-    this.props.saveProjectSb3('blob', progress => {
-        this.handleSaveProgress(progress);
-    }).then(content => {
-        this.handleSaveDone();
-        this.finishedSaving();
-        downloadBlob(this.props.projectFilename, content);
-    }).catch(e => {
-        log.error(e);
-        this.handleSaveError(e);
-    });
-}
+
     async saveAsNew () {
         if (!this.props.canSaveProject) {
             return;
@@ -174,6 +105,7 @@ dismissBanner () {
             this.handleSaveError(e);
         }
     }
+
     async saveToLastFile () {
         try {
             await this.saveToHandle(this.props.fileHandle);
@@ -181,12 +113,14 @@ dismissBanner () {
             this.handleSaveError(e);
         }
     }
+
     saveToLastFileOrNew () {
         if (this.props.fileHandle) {
             return this.saveToLastFile();
         }
         return this.saveAsNew();
     }
+
     async saveToHandle (handle) {
         if (!this.props.canSaveProject) {
             return;
@@ -196,8 +130,6 @@ dismissBanner () {
         this.startedSaving();
 
         await new Promise((resolve, reject) => {
-            // Projects can be very large, so we'll utilize JSZip's stream API to avoid having the
-            // entire sb3 in memory at the same time.
             const jszipStream = this.props.saveProjectSb3Stream();
 
             const abortController = new AbortController();
@@ -205,10 +137,6 @@ dismissBanner () {
                 abortController.abort(error);
             });
 
-            // JSZip's stream pause() and resume() methods are not necessarily completely no-ops
-            // if they are already paused or resumed. These also make it easier to add debug
-            // logging of when we actually pause or resume.
-            // Note that JSZip will keep sending some data after you ask it to pause.
             let jszipStreamRunning = false;
             const pauseJSZipStream = () => {
                 if (jszipStreamRunning) {
@@ -216,6 +144,7 @@ dismissBanner () {
                     jszipStream.pause();
                 }
             };
+
             const resumeJSZipStream = () => {
                 if (!jszipStreamRunning) {
                     jszipStreamRunning = true;
@@ -223,12 +152,7 @@ dismissBanner () {
                 }
             };
 
-            // Allow the JSZip stream to run quite a bit ahead of file writing. This helps
-            // reduce zip stream pauses on systems with high latency storage.
             const HIGH_WATER_MARK_BYTES = 1024 * 1024 * 5;
-
-            // Minimum size of buffer to pass into write(). Small buffers will be queued and
-            // written in batches as they reach or exceed this size.
             const WRITE_BUFFER_TARGET_SIZE_BYTES = 1024 * 1024;
 
             const zipStream = new ReadableStream({
@@ -264,15 +188,12 @@ dismissBanner () {
                         queuedChunks.length = 0;
                         return writable.write(newBuffer);
                     }
-                    // Otherwise wait for more data
                 },
                 close: async () => {
-                    // Write the last batch of data.
                     const lastBuffer = concatenateByteArrays(queuedChunks);
                     if (lastBuffer.byteLength) {
                         await writable.write(lastBuffer);
                     }
-                    // File handle must be closed at the end to actually save the file.
                     await writable.close();
                 },
                 abort: async () => {
@@ -292,47 +213,35 @@ dismissBanner () {
                 });
         });
     }
+
     handleSaveError (e) {
-        // AbortError can happen when someone cancels the file selector dialog
         if (e && e.name === 'AbortError') {
             return;
         }
         log.error(e);
         this.props.onShowSaveErrorAlert();
     }
+
     render () {
-    const {
-        children
-    } = this.props;
-    return (
-        <React.Fragment>
-            {children(
-                this.props.className,
-                this.downloadProject,
-                this.props.showSaveFilePicker ? {
-                    available: true,
-                    name: this.props.fileHandle ? this.props.fileHandle.name : null,
-                    saveAsNew: this.saveAsNew,
-                    saveToLastFile: this.saveToLastFile,
-                    saveToLastFileOrNew: this.saveToLastFileOrNew,
-                    smartSave: this.saveToLastFileOrNew
-                } : {
-                    available: false,
-                    smartSave: this.downloadProject
-                }
-            )}
-            {createPortal(
-                <SaveBanner
-                    state={this.state.saveState}
-                    progress={this.state.saveProgress}
-                    errorMessage={this.state.saveError}
-                    onDismiss={this.dismissBanner}
-                />,
-                document.body
-            )}
-        </React.Fragment>
-    );
-}
+        const {
+            children
+        } = this.props;
+        return children(
+            this.props.className,
+            this.downloadProject,
+            this.props.showSaveFilePicker ? {
+                available: true,
+                name: this.props.fileHandle ? this.props.fileHandle.name : null,
+                saveAsNew: this.saveAsNew,
+                saveToLastFile: this.saveToLastFile,
+                saveToLastFileOrNew: this.saveToLastFileOrNew,
+                smartSave: this.saveToLastFileOrNew
+            } : {
+                available: false,
+                smartSave: this.downloadProject
+            }
+        );
+    }
 }
 
 const getProjectFilename = (curTitle, defaultTitle) => {
@@ -362,6 +271,7 @@ SB3Downloader.propTypes = {
     onProjectUnchanged: PropTypes.func,
     showSaveFilePicker: PropTypes.func
 };
+
 SB3Downloader.defaultProps = {
     className: '',
     showSaveFilePicker: typeof showSaveFilePicker === 'function' && !navigator.userAgent.includes('Android') ?
