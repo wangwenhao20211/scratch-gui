@@ -28,8 +28,4 @@ const subscribeSaveStatus = listener => {
     };
 };
 
-export {
-    setSaveStatus,
-    getSaveStatus,
-    subscribeSaveStatus
-};
+export {setSaveStatus, getSaveStatus, subscribeSaveStatus};

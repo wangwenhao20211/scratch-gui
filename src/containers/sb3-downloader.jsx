@@ -61,9 +61,10 @@ class SB3Downloader extends React.Component {
         }
         this.startedSaving();
         setSaveStatus('saving', 0, null);
-        this.props.saveProjectSb3('blob', info => {
-    setSaveStatus('saving', info.percent, null, info.currentFile);
-})
+        this.props
+            .saveProjectSb3('blob', info => {
+                setSaveStatus('saving', info.percent, null, info.currentFile);
+            })
             .then(content => {
                 setSaveStatus('done', 1, null);
                 this.finishedSaving();

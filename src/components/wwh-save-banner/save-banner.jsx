@@ -92,20 +92,13 @@ const SaveBanner = ({state, progress, currentFile, errorMessage, onDismiss}) => 
                 >
                     {collapsed ? '▽' : '△'}
                 </button>
-                <button
-                    className={styles.button}
-                    onClick={onDismiss}
-                    title="关闭"
-                >
+                <button className={styles.button} onClick={onDismiss} title="关闭">
                     {'×'}
                 </button>
             </div>
             {!collapsed && state === 'saving' ? (
                 <div className={styles.progressBar}>
-                    <div
-                        className={styles.progressFill}
-                        style={{width: `${percent}%`}}
-                    />
+                    <div className={styles.progressFill} style={{width: `${percent}%`}} />
                 </div>
             ) : null}
             {!collapsed && state === 'error' && errorMessage ? (
