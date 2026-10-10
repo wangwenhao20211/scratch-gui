@@ -38,21 +38,16 @@ const concatenateByteArrays = arrays => {
 };
 
 class SB3Downloader extends React.Component {
-    constructor (props) {
+    constructor(props) {
         super(props);
-        bindAll(this, [
-            'downloadProject',
-            'saveAsNew',
-            'saveToLastFile',
-            'saveToLastFileOrNew'
-        ]);
+        bindAll(this, ['downloadProject', 'saveAsNew', 'saveToLastFile', 'saveToLastFileOrNew']);
     }
 
-    startedSaving () {
+    startedSaving() {
         this.props.onShowSavingAlert();
     }
 
-    finishedSaving () {
+    finishedSaving() {
         this.props.onProjectUnchanged();
         this.props.onShowSaveSuccessAlert();
         if (this.props.onSaveFinished) {
@@ -60,25 +55,28 @@ class SB3Downloader extends React.Component {
         }
     }
 
-    downloadProject () {
+    downloadProject() {
         if (!this.props.canSaveProject) {
             return;
         }
         this.startedSaving();
         setSaveStatus('saving', 0, null);
-        this.props.saveProjectSb3('blob', progress => {
-            setSaveStatus('saving', progress, null);
-        }).then(content => {
-            setSaveStatus('done', 1, null);
-            this.finishedSaving();
-            downloadBlob(this.props.projectFilename, content);
-        }).catch(e => {
-            log.error(e);
-            setSaveStatus('error', 0, String(e && e.message ? e.message : e));
-        });
+        this.props
+            .saveProjectSb3('blob', progress => {
+                setSaveStatus('saving', progress, null);
+            })
+            .then(content => {
+                setSaveStatus('done', 1, null);
+                this.finishedSaving();
+                downloadBlob(this.props.projectFilename, content);
+            })
+            .catch(e => {
+                log.error(e);
+                setSaveStatus('error', 0, String(e && e.message ? e.message : e));
+            });
     }
 
-    async saveAsNew () {
+    async saveAsNew() {
         if (!this.props.canSaveProject) {
             return;
         }
@@ -106,7 +104,7 @@ class SB3Downloader extends React.Component {
         }
     }
 
-    async saveToLastFile () {
+    async saveToLastFile() {
         try {
             await this.saveToHandle(this.props.fileHandle);
         } catch (e) {
@@ -114,14 +112,14 @@ class SB3Downloader extends React.Component {
         }
     }
 
-    saveToLastFileOrNew () {
+    saveToLastFileOrNew() {
         if (this.props.fileHandle) {
             return this.saveToLastFile();
         }
         return this.saveAsNew();
     }
 
-    async saveToHandle (handle) {
+    async saveToHandle(handle) {
         if (!this.props.canSaveProject) {
             return;
         }
@@ -155,28 +153,31 @@ class SB3Downloader extends React.Component {
             const HIGH_WATER_MARK_BYTES = 1024 * 1024 * 5;
             const WRITE_BUFFER_TARGET_SIZE_BYTES = 1024 * 1024;
 
-            const zipStream = new ReadableStream({
-                start: controller => {
-                    jszipStream.on('data', data => {
-                        controller.enqueue(data);
-                        if (controller.desiredSize <= 0) {
-                            pauseJSZipStream();
-                        }
-                    });
-                    jszipStream.on('end', () => {
-                        controller.close();
-                    });
-                    resumeJSZipStream();
+            const zipStream = new ReadableStream(
+                {
+                    start: controller => {
+                        jszipStream.on('data', data => {
+                            controller.enqueue(data);
+                            if (controller.desiredSize <= 0) {
+                                pauseJSZipStream();
+                            }
+                        });
+                        jszipStream.on('end', () => {
+                            controller.close();
+                        });
+                        resumeJSZipStream();
+                    },
+                    pull: () => {
+                        resumeJSZipStream();
+                    },
+                    cancel: () => {
+                        pauseJSZipStream();
+                    }
                 },
-                pull: () => {
-                    resumeJSZipStream();
-                },
-                cancel: () => {
-                    pauseJSZipStream();
-                }
-            }, new ByteLengthQueuingStrategy({
-                highWaterMark: HIGH_WATER_MARK_BYTES
-            }));
+                new ByteLengthQueuingStrategy({
+                    highWaterMark: HIGH_WATER_MARK_BYTES
+                })
+            );
 
             const queuedChunks = [];
             const fileStream = new WritableStream({
@@ -201,9 +202,10 @@ class SB3Downloader extends React.Component {
                 }
             });
 
-            zipStream.pipeTo(fileStream, {
-                signal: abortController.signal
-            })
+            zipStream
+                .pipeTo(fileStream, {
+                    signal: abortController.signal
+                })
                 .then(() => {
                     this.finishedSaving();
                     resolve();
@@ -214,7 +216,7 @@ class SB3Downloader extends React.Component {
         });
     }
 
-    handleSaveError (e) {
+    handleSaveError(e) {
         if (e && e.name === 'AbortError') {
             return;
         }
@@ -222,24 +224,24 @@ class SB3Downloader extends React.Component {
         this.props.onShowSaveErrorAlert();
     }
 
-    render () {
-        const {
-            children
-        } = this.props;
+    render() {
+        const {children} = this.props;
         return children(
             this.props.className,
             this.downloadProject,
-            this.props.showSaveFilePicker ? {
-                available: true,
-                name: this.props.fileHandle ? this.props.fileHandle.name : null,
-                saveAsNew: this.saveAsNew,
-                saveToLastFile: this.saveToLastFile,
-                saveToLastFileOrNew: this.saveToLastFileOrNew,
-                smartSave: this.saveToLastFileOrNew
-            } : {
-                available: false,
-                smartSave: this.downloadProject
-            }
+            this.props.showSaveFilePicker
+                ? {
+                      available: true,
+                      name: this.props.fileHandle ? this.props.fileHandle.name : null,
+                      saveAsNew: this.saveAsNew,
+                      saveToLastFile: this.saveToLastFile,
+                      saveToLastFileOrNew: this.saveToLastFileOrNew,
+                      smartSave: this.saveToLastFileOrNew
+                  }
+                : {
+                      available: false,
+                      smartSave: this.downloadProject
+                  }
         );
     }
 }
@@ -274,9 +276,10 @@ SB3Downloader.propTypes = {
 
 SB3Downloader.defaultProps = {
     className: '',
-    showSaveFilePicker: typeof showSaveFilePicker === 'function' && !navigator.userAgent.includes('Android') ?
-        window.showSaveFilePicker.bind(window) :
-        null
+    showSaveFilePicker:
+        typeof showSaveFilePicker === 'function' && !navigator.userAgent.includes('Android')
+            ? window.showSaveFilePicker.bind(window)
+            : null
 };
 
 const mapStateToProps = state => ({
@@ -296,7 +299,4 @@ const mapDispatchToProps = dispatch => ({
     onProjectUnchanged: () => dispatch(setProjectUnchanged())
 });
 
-export default connect(
-    mapStateToProps,
-    mapDispatchToProps
-)(SB3Downloader);
+export default connect(mapStateToProps, mapDispatchToProps)(SB3Downloader);
