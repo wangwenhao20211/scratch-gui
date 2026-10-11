@@ -529,6 +529,7 @@ class MenuBar extends React.Component {
                                 isRtl={this.props.isRtl}
                                 onClickWwhSecurityPanel={this.props.onClickWwhSecurityPanel}
                                 onClickWwhNetworkPanel={this.props.onClickWwhNetworkPanel}
+                                onClickWwhDisplayPanel={this.props.onClickWwhDisplayPanel}
                                 onClickDesktopSettings={
                                     this.props.onClickDesktopSettings && this.handleClickDesktopSettings
                                 }
