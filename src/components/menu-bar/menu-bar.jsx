@@ -1198,9 +1198,9 @@ const mapDispatchToProps = dispatch => ({
     onSeeCommunity: () => dispatch(setPlayer(true)),
     onSetTimeTravelMode: mode => dispatch(setTimeTravel(mode)),
     onClickWwhDisplayPanel: () => {
-    dispatch(closeSettingsMenu());
-    dispatch(openWwhDisplayPanel());
-},
+        dispatch(closeSettingsMenu());
+        dispatch(openWwhDisplayPanel());
+    }
 });
 
 export default compose(injectIntl, MenuBarHOC, connect(mapStateToProps, mapDispatchToProps))(MenuBar);
