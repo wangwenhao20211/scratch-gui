@@ -199,9 +199,5 @@ export default {
     'wwh-network-policy': () =>
         import(
             /* webpackChunkName: "addon-entry-wwh-network-policy" */ '../addons/wwh-network-policy/_runtime_entry.js'
-        ),
-    'wwh-mobile-fullscreen': () =>
-        import(
-            /* webpackChunkName: "addon-entry-wwh-mobile-fullscreen" */ '../addons/wwh-mobile-fullscreen/_runtime_entry.js'
         )
 };

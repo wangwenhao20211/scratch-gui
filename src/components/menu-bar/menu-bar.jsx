@@ -39,7 +39,8 @@ import {
     openSettingsModal,
     openRestorePointModal,
     openWwhSecurityPanel,
-    openWwhNetworkPanel
+    openWwhNetworkPanel,
+    openWwhDisplayPanel
 } from '../../reducers/modals';
 
 import {setPlayer} from '../../reducers/mode';
@@ -1194,7 +1195,11 @@ const mapDispatchToProps = dispatch => ({
     onClickSave: () => dispatch(manualUpdateProject()),
     onClickSaveAsCopy: () => dispatch(saveProjectAsCopy()),
     onSeeCommunity: () => dispatch(setPlayer(true)),
-    onSetTimeTravelMode: mode => dispatch(setTimeTravel(mode))
+    onSetTimeTravelMode: mode => dispatch(setTimeTravel(mode)),
+    onClickWwhDisplayPanel: () => {
+    dispatch(closeSettingsMenu());
+    dispatch(openWwhDisplayPanel());
+},
 });
 
 export default compose(injectIntl, MenuBarHOC, connect(mapStateToProps, mapDispatchToProps))(MenuBar);

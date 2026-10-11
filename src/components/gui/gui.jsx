@@ -52,7 +52,12 @@ import soundsIcon from '!../../lib/tw-recolor/build!./icon--sounds.svg';
 
 import WWHSecurityPanel from '../wwh-security-panel/security-panel.jsx';
 import WWHNetworkPanel from '../wwh-network-panel/network-panel.jsx';
-import {closeWwhSecurityPanel, closeWwhNetworkPanel} from '../../reducers/modals';
+import WWHDisplayPanel from '../wwh-display-panel/display-panel.jsx';
+import {
+    closeWwhSecurityPanel,
+    closeWwhNetworkPanel,
+    closeWwhDisplayPanel
+} from '../../reducers/modals';
 
 const messages = defineMessages({
     addExtension: {
@@ -164,11 +169,14 @@ const GUIComponent = props => {
         invalidProjectModalVisible,
         vm,
         wwhSecurityPanelVisible,
-wwhNetworkPanelVisible,
-onRequestCloseWwhSecurityPanel,
-onRequestCloseWwhNetworkPanel,
+        wwhNetworkPanelVisible,
+        wwhDisplayPanelVisible,
+        onRequestCloseWwhSecurityPanel,
+        onRequestCloseWwhNetworkPanel,
+        onRequestCloseWwhDisplayPanel,
         ...componentProps
     } = omit(props, 'dispatch');
+
     if (children) {
         return <Box {...componentProps}>{children}</Box>;
     }
@@ -196,6 +204,7 @@ onRequestCloseWwhNetworkPanel,
                 <TWRestorePointManager />
                 {wwhSecurityPanelVisible && <WWHSecurityPanel onClose={onRequestCloseWwhSecurityPanel} />}
                 {wwhNetworkPanelVisible && <WWHNetworkPanel onClose={onRequestCloseWwhNetworkPanel} />}
+                {wwhDisplayPanelVisible && <WWHDisplayPanel onClose={onRequestCloseWwhDisplayPanel} />}
                 {usernameModalVisible && <TWUsernameModal />}
                 {settingsModalVisible && <TWSettingsModal />}
                 {customExtensionModalVisible && <TWCustomExtensionModal />}
@@ -207,9 +216,6 @@ onRequestCloseWwhNetworkPanel,
 
         return isPlayerOnly ? (
             <React.Fragment>
-                {/* TW: When the window is fullscreen, use an element to display the background color */}
-                {/* The default color for transparency is inconsistent between browsers and there isn't an existing */}
-                {/* element for us to style that fills the entire screen. */}
                 {isWindowFullScreen ? (
                     <div
                         className={styles.fullscreenBackground}
@@ -468,9 +474,9 @@ onRequestCloseWwhNetworkPanel,
 GUIComponent.propTypes = {
     accountNavOpen: PropTypes.bool,
     activeTabIndex: PropTypes.number,
-    authorId: PropTypes.oneOfType([PropTypes.string, PropTypes.bool]), // can be false
+    authorId: PropTypes.oneOfType([PropTypes.string, PropTypes.bool]),
     authorThumbnailUrl: PropTypes.string,
-    authorUsername: PropTypes.oneOfType([PropTypes.string, PropTypes.bool]), // can be false
+    authorUsername: PropTypes.oneOfType([PropTypes.string, PropTypes.bool]),
     backdropLibraryVisible: PropTypes.bool,
     backpackHost: PropTypes.string,
     backpackVisible: PropTypes.bool,
@@ -552,10 +558,13 @@ GUIComponent.propTypes = {
     invalidProjectModalVisible: PropTypes.bool,
     vm: PropTypes.instanceOf(VM).isRequired,
     wwhSecurityPanelVisible: PropTypes.bool,
-wwhNetworkPanelVisible: PropTypes.bool,
-onRequestCloseWwhSecurityPanel: PropTypes.func,
-onRequestCloseWwhNetworkPanel: PropTypes.func,
+    wwhNetworkPanelVisible: PropTypes.bool,
+    wwhDisplayPanelVisible: PropTypes.bool,
+    onRequestCloseWwhSecurityPanel: PropTypes.func,
+    onRequestCloseWwhNetworkPanel: PropTypes.func,
+    onRequestCloseWwhDisplayPanel: PropTypes.func
 };
+
 GUIComponent.defaultProps = {
     backpackHost: null,
     backpackVisible: false,
@@ -583,17 +592,18 @@ GUIComponent.defaultProps = {
 const mapStateToProps = state => ({
     customStageSize: state.scratchGui.customStageSize,
     isWindowFullScreen: state.scratchGui.tw.isWindowFullScreen,
-    // This is the button's mode, as opposed to the actual current state
     blocksId: state.scratchGui.timeTravel.year.toString(),
     stageSizeMode: state.scratchGui.stageSize.stageSize,
     theme: state.scratchGui.theme.theme,
     wwhSecurityPanelVisible: state.scratchGui.modals.wwhSecurityPanel,
-wwhNetworkPanelVisible: state.scratchGui.modals.wwhNetworkPanel,
+    wwhNetworkPanelVisible: state.scratchGui.modals.wwhNetworkPanel,
+    wwhDisplayPanelVisible: state.scratchGui.modals.wwhDisplayPanel
 });
 
 const mapDispatchToProps = dispatch => ({
     onRequestCloseWwhSecurityPanel: () => dispatch(closeWwhSecurityPanel()),
-    onRequestCloseWwhNetworkPanel: () => dispatch(closeWwhNetworkPanel())
+    onRequestCloseWwhNetworkPanel: () => dispatch(closeWwhNetworkPanel()),
+    onRequestCloseWwhDisplayPanel: () => dispatch(closeWwhDisplayPanel())
 });
 
 export default injectIntl(connect(

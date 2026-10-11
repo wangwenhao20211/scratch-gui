@@ -102,6 +102,7 @@ const SettingsMenu = ({
     onClickDesktopSettings,
     onClickWwhSecurityPanel,
     onClickWwhNetworkPanel,
+    onClickWwhDisplayPanel,
     onOpenCustomSettings,
     onRequestClose,
     onRequestOpen,
@@ -147,6 +148,13 @@ const SettingsMenu = ({
                         <TWAccentThemeMenu />
                     </React.Fragment>
                 )}
+                <MenuItem onClick={onClickWwhDisplayPanel}>
+                    <FormattedMessage
+                        defaultMessage="显示设置"
+                        description="Open display settings panel"
+                        id="wwh.menuBar.displayPanel"
+                    />
+                </MenuItem>
                 <WwhPanelsMenu
                     onOpenSecurity={onClickWwhSecurityPanel}
                     onOpenNetwork={onClickWwhNetworkPanel}
@@ -167,7 +175,8 @@ SettingsMenu.propTypes = {
     onRequestOpen: PropTypes.func,
     settingsMenuOpen: PropTypes.bool,
     onClickWwhSecurityPanel: PropTypes.func,
-    onClickWwhNetworkPanel: PropTypes.func
+    onClickWwhNetworkPanel: PropTypes.func,
+    onClickWwhDisplayPanel: PropTypes.func
 };
 
 export default SettingsMenu;

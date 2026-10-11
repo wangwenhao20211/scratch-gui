@@ -1,0 +1,82 @@
+.modalContent {
+    width: 500px;
+    max-width: 90vw;
+    background-color: #ffffff;
+}
+
+.body {
+    padding: 1rem;
+    background-color: #ffffff;
+    color: #575e75;
+}
+
+.intro {
+    margin-bottom: 1rem;
+    color: #575e75;
+    font-size: 0.9rem;
+}
+
+.setting {
+    padding: 0.75rem 0;
+    border-bottom: 1px solid #e6e6e6;
+}
+
+.label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    font-weight: bold;
+    color: #575e75;
+}
+
+.input {
+    display: block;
+    width: 100%;
+    padding: 6px 8px;
+    margin-top: 0.5rem;
+    border: 1px solid #c5c5c5;
+    border-radius: 4px;
+    font-size: 14px;
+    box-sizing: border-box;
+}
+
+.input:disabled {
+    background: #f5f5f5;
+    color: #999;
+}
+
+.help {
+    margin-top: 0.5rem;
+    font-size: 0.85rem;
+    color: #575e75;
+    line-height: 1.4;
+}
+
+.reloadNotice {
+    margin-top: 1rem;
+    padding: 0.75rem;
+    background: #fff8e1;
+    border: 1px solid #ffe0a3;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    font-size: 0.9rem;
+}
+
+.reloadButton {
+    padding: 6px 14px;
+    background: #4c97ff;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.reloadButton:hover {
+    background: #3373cc;
+}

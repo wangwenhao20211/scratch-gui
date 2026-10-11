@@ -21,6 +21,7 @@ const MODAL_INVALID_PROJECT = 'invalidProjectModal';
 
 const MODAL_WWH_SECURITY = 'wwhSecurityPanel';
 const MODAL_WWH_NETWORK = 'wwhNetworkPanel';
+const MODAL_WWH_DISPLAY = 'wwhDisplayPanel';
 
 const initialState = {
     [MODAL_BACKDROP_LIBRARY]: false,
@@ -42,7 +43,8 @@ const initialState = {
     [MODAL_INVALID_PROJECT]: false,
     [MODAL_INVALID_PROJECT]: false,
     [MODAL_WWH_SECURITY]: false,
-    [MODAL_WWH_NETWORK]: false
+    [MODAL_WWH_NETWORK]: false,
+    [MODAL_WWH_DISPLAY]: false
 };
 
 const reducer = function (state, action) {
@@ -189,6 +191,15 @@ const closeWwhSecurityPanel = function () {
 const closeWwhNetworkPanel = function () {
     return closeModal(MODAL_WWH_NETWORK);
 };
+
+const openWwhDisplayPanel = function () {
+    return openModal(MODAL_WWH_DISPLAY);
+};
+
+const closeWwhDisplayPanel = function () {
+    return closeModal(MODAL_WWH_DISPLAY);
+};
+
 export {
     reducer as default,
     initialState as modalsInitialState,
@@ -229,5 +240,7 @@ export {
     openWwhSecurityPanel,
     openWwhNetworkPanel,
     closeWwhSecurityPanel,
-    closeWwhNetworkPanel
+    closeWwhNetworkPanel,
+    openWwhDisplayPanel,
+closeWwhDisplayPanel,
 };

@@ -3,6 +3,19 @@
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script>
+(function () {
+    try {
+        var enabled = localStorage.getItem('wwh:viewport-scale-enabled') === 'true';
+        if (!enabled) return;
+        var width = localStorage.getItem('wwh:viewport-width') || '1100';
+        var meta = document.querySelector('meta[name="viewport"]');
+        if (meta) {
+            meta.setAttribute('content', 'width=' + width + ', initial-scale=1');
+        }
+    } catch (e) {}
+})();
+</script>
     <meta name="google" value="notranslate">
     <meta name="description" content="<%= htmlWebpackPlugin.options.APP_NAME %> is a Scratch mod with a compiler to run projects faster, dark mode for your eyes, a bunch of addons to improve the editor, and more." />
     <title><%= htmlWebpackPlugin.options.title %></title>
