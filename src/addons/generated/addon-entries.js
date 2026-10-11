@@ -83,4 +83,5 @@ export default {
   "editor-stepping": () => import(/* webpackChunkName: "addon-entry-editor-stepping" */ "../addons/editor-stepping/_runtime_entry.js"),
   "eruda": () => import(/* webpackChunkName: "addon-entry-eruda" */ "../addons/eruda/_runtime_entry.js"),
   "wwh-network-policy": () => import(/* webpackChunkName: "addon-entry-wwh-network-policy" */ "../addons/wwh-network-policy/_runtime_entry.js"),
+  "wwh-mobile-fullscreen": () => import(/* webpackChunkName: "addon-entry-wwh-mobile-fullscreen" */ "../addons/wwh-mobile-fullscreen/_runtime_entry.js"),
 };
