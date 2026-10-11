@@ -1,10 +1,24 @@
 export default async ({addon, console}) => {
-    const MIN_WIDTH = 1100;
+    const getConfig = () => {
+        const scaleMode = addon.settings.get('scaleMode') || 'auto';
+        const fixedScale = parseFloat(addon.settings.get('fixedScale')) || 0.8;
+        const minWidth = parseFloat(addon.settings.get('minWidth')) || 1100;
+        const minHeight = parseFloat(addon.settings.get('minHeight')) || 620;
+        return {scaleMode, fixedScale, minWidth, minHeight};
+    };
 
     const applyZoom = () => {
-        const available = window.innerWidth;
-        if (available < MIN_WIDTH) {
-            document.documentElement.style.zoom = (available / MIN_WIDTH).toString();
+        const cfg = getConfig();
+        let scale;
+        if (cfg.scaleMode === 'fixed') {
+            scale = cfg.fixedScale;
+        } else {
+            const availW = window.innerWidth;
+            const availH = window.innerHeight;
+            scale = Math.min(availW / cfg.minWidth, availH / cfg.minHeight);
+        }
+        if (scale < 1) {
+            document.documentElement.style.zoom = scale.toString();
         } else {
             document.documentElement.style.zoom = '';
         }
@@ -16,8 +30,7 @@ export default async ({addon, console}) => {
 
     const button = document.createElement('button');
     button.title = '全屏';
-    button.innerHTML =
-        '<svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg>';
+    button.innerHTML = '<svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg>';
     button.style.cssText = [
         'position:fixed',
         'right:12px',
@@ -47,18 +60,14 @@ export default async ({addon, console}) => {
                     if (screen.orientation && screen.orientation.unlock) {
                         screen.orientation.unlock();
                     }
-                } catch (e) {
-                    /* ignore */
-                }
+                } catch (e) { /* ignore */ }
             } else {
                 await document.documentElement.requestFullscreen();
                 try {
                     if (screen.orientation && screen.orientation.lock) {
                         await screen.orientation.lock('landscape');
                     }
-                } catch (e) {
-                    /* ignore */
-                }
+                } catch (e) { /* ignore */ }
             }
         } catch (e) {
             console.error('Fullscreen toggle failed:', e);
@@ -86,7 +95,6 @@ export default async ({addon, console}) => {
     window.addEventListener('resize', onResize);
     document.body.appendChild(button);
 
-    // dynamicDisable 是 false，所以不需要清理。但如果用户手动关闭，这里作为保险：
     addon.self.addEventListener('disabled', () => {
         document.removeEventListener('fullscreenchange', onFullscreenChange);
         window.removeEventListener('resize', onResize);
