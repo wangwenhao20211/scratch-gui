@@ -46,7 +46,7 @@ const save = () => {
 };
 
 const parseHosts = value => String(value || '').split(/[\s,;]+/).map(x => x.trim().toLowerCase()).filter(Boolean);
-const hostMatches = (hostname, rules) => rules.some(rule => hostname === rule || hostname.endsWith(`.\u0024{rule}`));
+const hostMatches = (hostname, rules) => rules.some(rule => hostname === rule || hostname.endsWith('.' + rule));
 
 const isTelemetryURL = url => {
     try {
@@ -171,6 +171,27 @@ if (typeof window !== 'undefined' && !window.__wwhNetworkManager) {
                 this.addEventListener('error', () => update(item.id, {status: 'error'}), {once: true});
                 return super.send(...args);
             }
+        };
+    }
+
+    const NativeWebSocket = window.WebSocket;
+    if (NativeWebSocket) {
+        window.WebSocket = class ManagedWebSocket extends NativeWebSocket {
+            constructor(url, protocols) {
+                const item = record({url: String(url), method: 'WS', source: 'WebSocket'});
+                if (!shouldAllow(url, 'WebSocket')) {
+                    update(item.id, {status: 'blocked'});
+                    throw new DOMException('Blocked by TurboWarp network manager', 'NetworkError');
+                }
+                super(url, protocols);
+                this.addEventListener('open', () => update(item.id, {status: 'connected'}), {once: true});
+                this.addEventListener('error', () => update(item.id, {status: 'error'}), {once: true});
+                this.addEventListener('close', () => update(item.id, {status: 'closed'}), {once: true});
+            }
+            static get CONNECTING() { return NativeWebSocket.CONNECTING; }
+            static get OPEN() { return NativeWebSocket.OPEN; }
+            static get CLOSING() { return NativeWebSocket.CLOSING; }
+            static get CLOSED() { return NativeWebSocket.CLOSED; }
         };
     }
 
