@@ -121,6 +121,13 @@ const manager = {
         emit();
     },
     authorize: (url, source) => shouldAllow(url, source || 'vm'),
+    beginRequest: (url, method, source) => {
+        const item = record({url: String(url), method: String(method || 'GET').toUpperCase(), source: source || 'vm-worker'});
+        const allowed = shouldAllow(url, source || 'vm-worker');
+        if (!allowed) update(item.id, {status: 'blocked'});
+        return {id: item.id, allowed};
+    },
+    updateRequest: (id, values) => update(id, values),
     record
 };
 
