@@ -98,7 +98,7 @@ class NetworkPanel extends React.PureComponent {
                     <section className={styles.telemetry}>
                         <div>
                             <strong>禁止 TurboWarp 遥测</strong>
-                            <p>拦截识别到的遥测、统计与跟踪请求。不会关闭正常作品资源请求。</p>
+                            <p>仓库当前 analytics.js 已将事件上报设为空操作；此开关还会拦截可识别的 telemetry / analytics / tracking 请求，不会关闭普通作品资源请求。</p>
                         </div>
                         <button
                             className={config.telemetryDisabled ? styles.enabledButton : styles.actionButton}
