@@ -171,7 +171,7 @@ if (typeof window !== 'undefined' && !window.__wwhNetworkManager) {
                 }
                 this.addEventListener('loadend', () => {
                     update(item.id, {
-                        status: this.status >= 200 && this.status < 400 ? 'success' : 'http-error',
+                        status: this.status === 0 ? 'error' : (this.status >= 200 && this.status < 400 ? 'success' : 'http-error'),
                         statusCode: this.status
                     });
                 }, {once: true});
