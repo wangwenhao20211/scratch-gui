@@ -32,7 +32,9 @@ const listeners = new Set();
 let nextId = 1;
 
 const emit = () => {
-    for (const listener of listeners) listener();
+    for (const listener of listeners) {
+        try { listener(); } catch (e) { /* A UI listener must not interrupt network activity. */ }
+    }
     try {
         window.dispatchEvent(new CustomEvent('wwh-network-update'));
     } catch (e) {
@@ -58,7 +60,7 @@ const save = () => {
     }
 };
 
-const parseHosts = value => String(value || '').split(/[\s,;]+/).map(x => x.trim().toLowerCase()).filter(Boolean);
+const parseHosts = value => String(value || '').split(/[\s,;]+/).map(x => x.trim().toLowerCase().replace(/^\\*\\./, '')).filter(Boolean);
 const hostMatches = (hostname, rules) => rules.some(rule => hostname === rule || hostname.endsWith('.' + rule));
 
 const isTelemetryURL = url => {
@@ -70,6 +72,7 @@ const isTelemetryURL = url => {
             host.endsWith('.google-analytics.com') ||
             host === 'www.googletagmanager.com' ||
             host.endsWith('.googletagmanager.com') ||
+            /telemetry|analytics|tracking/i.test(host) ||
             /telemetry|analytics|tracking/i.test(parsed.pathname);
     } catch (e) {
         return /telemetry|analytics|tracking/i.test(String(url));
