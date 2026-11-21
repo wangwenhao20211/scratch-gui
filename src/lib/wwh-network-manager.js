@@ -5,14 +5,22 @@ const MAX_REQUESTS = 200;
 
 const readConfig = () => {
     try {
-        const legacy = {
-            mode: localStorage.getItem('wwh:net-mode') || 'allow',
-            whitelist: localStorage.getItem('wwh:net-whitelist') || '',
-            blacklist: localStorage.getItem('wwh:net-blacklist') || '',
-            ask: localStorage.getItem('wwh:net-ask') === 'true',
-            telemetryDisabled: localStorage.getItem(TELEMETRY_KEY) === 'true'
-        };
-        return Object.assign(legacy, JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}'));
+        const stored = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+        const config = Object.assign({
+            mode: 'allow',
+            whitelist: '',
+            blacklist: '',
+            ask: false,
+            telemetryDisabled: false
+        }, stored);
+        if (localStorage.getItem('wwh:net-mode') !== null) {
+            config.mode = localStorage.getItem('wwh:net-mode') || 'allow';
+            config.whitelist = localStorage.getItem('wwh:net-whitelist') || '';
+            config.blacklist = localStorage.getItem('wwh:net-blacklist') || '';
+            config.ask = localStorage.getItem('wwh:net-ask') === 'true';
+        }
+        config.telemetryDisabled = localStorage.getItem(TELEMETRY_KEY) === 'true';
+        return config;
     } catch (e) {
         return {mode: 'allow', whitelist: '', blacklist: '', ask: false, telemetryDisabled: false};
     }
