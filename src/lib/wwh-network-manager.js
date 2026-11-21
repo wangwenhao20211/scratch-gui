@@ -84,7 +84,7 @@ const shouldAllow = (url, source) => {
     if (config.mode === 'block') return false;
     if (config.mode === 'whitelist' && !hostMatches(host, white)) return false;
     if (config.mode === 'blacklist' && hostMatches(host, black)) return false;
-    if (config.ask && source !== 'editor-internal') {
+    if (config.ask && source !== 'editor-internal' && source !== 'vm-permission') {
         return window.confirm(`允许网络请求？\n\n${parsed.href}`);
     }
     return true;
@@ -125,7 +125,11 @@ const manager = {
         requests.length = 0;
         emit();
     },
-    authorize: (url, source) => shouldAllow(url, source || 'vm'),
+    authorize: (url, source) => {
+        const allowed = shouldAllow(url, source || 'vm');
+        if (!allowed) record({url: String(url), method: 'PERMISSION', source: source || 'vm', status: 'blocked'});
+        return allowed;
+    },
     beginRequest: (url, method, source) => {
         const item = record({url: String(url), method: String(method || 'GET').toUpperCase(), source: source || 'vm-worker'});
         const allowed = shouldAllow(url, source || 'vm-worker');
