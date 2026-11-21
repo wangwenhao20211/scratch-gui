@@ -327,6 +327,10 @@ class TWSecurityManagerComponent extends React.Component {
     }
 
     async canFetch (url) {
+        const networkManager = typeof window !== 'undefined' && window.__wwhNetworkManager;
+        if (networkManager && !networkManager.authorize(url, 'vm-permission')) {
+            return false;
+        }
         const parsed = parseURL(url, FETCHABLE_PROTOCOLS);
         if (!parsed) {
             return false;
