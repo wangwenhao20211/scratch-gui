@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
 import React from 'react';
-import {FormattedMessage, injectIntl, intlShape} from 'react-intl';
+import {injectIntl, intlShape} from 'react-intl';
 import Box from '../box/box.jsx';
 import Modal from '../../containers/modal.jsx';
 import networkManager from '../../lib/wwh-network-manager';
