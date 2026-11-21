@@ -137,7 +137,7 @@ class NetworkPanel extends React.PureComponent {
                             </div>
                         )}
                     </section>
-                    <p className={styles.disclaimer}>说明：当前监控覆盖页面 fetch、XMLHttpRequest、WebSocket 和 sendBeacon。浏览器原生资源加载、Service Worker 内部请求及独立 Worker 的直接请求不一定经过页面拦截；不要将此面板视为完整防火墙。</p>
+                    <p className={styles.disclaimer}>说明：当前监控覆盖页面 fetch、XMLHttpRequest、WebSocket、sendBeacon，以及 TurboWarp 沙箱扩展 Worker 的 fetch。浏览器原生图片/脚本/媒体资源加载、Service Worker 内部请求，以及 Worker 内的 XHR/WebSocket 等通道仍可能绕过；请求头和请求体不会默认采集，以免记录 Cookie、令牌等敏感数据。</p>
                     <p className={styles.author}>Network manager by <a href="https://space.bilibili.com/1512219051" target="_blank" rel="noreferrer">wangwenhao20211</a></p>
                 </Box>
             </Modal>
