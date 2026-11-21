@@ -1,3 +1,4 @@
+import '../lib/wwh-network-manager';
 import PropTypes from 'prop-types';
 import React from 'react';
 import {compose} from 'redux';
