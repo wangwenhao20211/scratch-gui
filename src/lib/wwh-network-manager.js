@@ -60,7 +60,7 @@ const save = () => {
     }
 };
 
-const parseHosts = value => String(value || '').split(/[\s,;]+/).map(x => x.trim().toLowerCase().replace(/^\\*\\./, '')).filter(Boolean);
+const parseHosts = value => String(value || '').split(/[\s,;]+/).map(x => x.trim().toLowerCase().replace(/^\*\./, '')).filter(Boolean);
 const hostMatches = (hostname, rules) => rules.some(rule => hostname === rule || hostname.endsWith('.' + rule));
 
 const isTelemetryURL = url => {
