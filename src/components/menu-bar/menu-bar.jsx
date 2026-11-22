@@ -40,7 +40,8 @@ import {
     openRestorePointModal,
     openWwhSecurityPanel,
     openWwhNetworkPanel,
-    openWwhDisplayPanel
+    openWwhDisplayPanel,
+    openWwhExtensionManager
 } from '../../reducers/modals';
 
 import {setPlayer} from '../../reducers/mode';
@@ -670,6 +671,20 @@ class MenuBar extends React.Component {
                                         </MenuSection>
                                     )}
                                     <MenuSection>
+                                        <MenuItem
+                                            onClick={() => {
+                                                this.props.onRequestCloseFile();
+                                                this.props.onClickWwhExtensionManager();
+                                            }}
+                                        >
+                                            <FormattedMessage
+                                                defaultMessage="Extension manager"
+                                                description="Menu item for managing loaded extensions"
+                                                id="wwh.menuBar.extensionManager"
+                                            />
+                                        </MenuItem>
+                                    </MenuSection>
+                                    <MenuSection>
                                         <MenuItem onClick={this.handleClickRestorePoints}>
                                             <FormattedMessage
                                                 defaultMessage="Restore points"
@@ -1197,6 +1212,9 @@ const mapDispatchToProps = dispatch => ({
     onClickSaveAsCopy: () => dispatch(saveProjectAsCopy()),
     onSeeCommunity: () => dispatch(setPlayer(true)),
     onSetTimeTravelMode: mode => dispatch(setTimeTravel(mode)),
+    onClickWwhExtensionManager: () => {
+        dispatch(openWwhExtensionManager());
+    },
     onClickWwhDisplayPanel: () => {
         dispatch(closeSettingsMenu());
         dispatch(openWwhDisplayPanel());

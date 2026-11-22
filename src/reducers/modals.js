@@ -22,6 +22,7 @@ const MODAL_INVALID_PROJECT = 'invalidProjectModal';
 const MODAL_WWH_SECURITY = 'wwhSecurityPanel';
 const MODAL_WWH_NETWORK = 'wwhNetworkPanel';
 const MODAL_WWH_DISPLAY = 'wwhDisplayPanel';
+const MODAL_WWH_EXTENSIONS = 'wwhExtensionManager';
 
 const initialState = {
     [MODAL_BACKDROP_LIBRARY]: false,
@@ -44,7 +45,8 @@ const initialState = {
     [MODAL_INVALID_PROJECT]: false,
     [MODAL_WWH_SECURITY]: false,
     [MODAL_WWH_NETWORK]: false,
-    [MODAL_WWH_DISPLAY]: false
+    [MODAL_WWH_DISPLAY]: false,
+    [MODAL_WWH_EXTENSIONS]: false
 };
 
 const reducer = function (state, action) {
@@ -194,6 +196,15 @@ const closeWwhNetworkPanel = function () {
 
 const openWwhDisplayPanel = function () {
     return openModal(MODAL_WWH_DISPLAY);
+};
+
+
+const openWwhExtensionManager = function () {
+    return openModal(MODAL_WWH_EXTENSIONS);
+};
+
+const closeWwhExtensionManager = function () {
+    return closeModal(MODAL_WWH_EXTENSIONS);
 };
 
 const closeWwhDisplayPanel = function () {

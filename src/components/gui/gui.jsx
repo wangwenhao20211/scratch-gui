@@ -53,10 +53,12 @@ import soundsIcon from '!../../lib/tw-recolor/build!./icon--sounds.svg';
 import WWHSecurityPanel from '../wwh-security-panel/security-panel.jsx';
 import WWHNetworkPanel from '../wwh-network-panel/network-panel.jsx';
 import WWHDisplayPanel from '../wwh-display-panel/display-panel.jsx';
+import WWHExtensionManager from '../wwh-extension-manager/extension-manager.jsx';
 import {
     closeWwhSecurityPanel,
     closeWwhNetworkPanel,
-    closeWwhDisplayPanel
+    closeWwhDisplayPanel,
+    closeWwhExtensionManager
 } from '../../reducers/modals';
 
 const messages = defineMessages({
@@ -171,9 +173,11 @@ const GUIComponent = props => {
         wwhSecurityPanelVisible,
         wwhNetworkPanelVisible,
         wwhDisplayPanelVisible,
+        wwhExtensionManagerVisible,
         onRequestCloseWwhSecurityPanel,
         onRequestCloseWwhNetworkPanel,
         onRequestCloseWwhDisplayPanel,
+        onRequestCloseWwhExtensionManager,
         ...componentProps
     } = omit(props, 'dispatch');
 
@@ -205,6 +209,7 @@ const GUIComponent = props => {
                 {wwhSecurityPanelVisible && <WWHSecurityPanel onClose={onRequestCloseWwhSecurityPanel} />}
                 {wwhNetworkPanelVisible && <WWHNetworkPanel onClose={onRequestCloseWwhNetworkPanel} />}
                 {wwhDisplayPanelVisible && <WWHDisplayPanel onClose={onRequestCloseWwhDisplayPanel} />}
+                {wwhExtensionManagerVisible && <WWHExtensionManager vm={vm} onClose={onRequestCloseWwhExtensionManager} />}
                 {usernameModalVisible && <TWUsernameModal />}
                 {settingsModalVisible && <TWSettingsModal />}
                 {customExtensionModalVisible && <TWCustomExtensionModal />}
@@ -560,9 +565,11 @@ GUIComponent.propTypes = {
     wwhSecurityPanelVisible: PropTypes.bool,
     wwhNetworkPanelVisible: PropTypes.bool,
     wwhDisplayPanelVisible: PropTypes.bool,
+    wwhExtensionManagerVisible: PropTypes.bool,
     onRequestCloseWwhSecurityPanel: PropTypes.func,
     onRequestCloseWwhNetworkPanel: PropTypes.func,
-    onRequestCloseWwhDisplayPanel: PropTypes.func
+    onRequestCloseWwhDisplayPanel: PropTypes.func,
+    onRequestCloseWwhExtensionManager: PropTypes.func
 };
 
 GUIComponent.defaultProps = {
@@ -597,13 +604,15 @@ const mapStateToProps = state => ({
     theme: state.scratchGui.theme.theme,
     wwhSecurityPanelVisible: state.scratchGui.modals.wwhSecurityPanel,
     wwhNetworkPanelVisible: state.scratchGui.modals.wwhNetworkPanel,
-    wwhDisplayPanelVisible: state.scratchGui.modals.wwhDisplayPanel
+    wwhDisplayPanelVisible: state.scratchGui.modals.wwhDisplayPanel,
+    wwhExtensionManagerVisible: state.scratchGui.modals.wwhExtensionManager
 });
 
 const mapDispatchToProps = dispatch => ({
     onRequestCloseWwhSecurityPanel: () => dispatch(closeWwhSecurityPanel()),
     onRequestCloseWwhNetworkPanel: () => dispatch(closeWwhNetworkPanel()),
-    onRequestCloseWwhDisplayPanel: () => dispatch(closeWwhDisplayPanel())
+    onRequestCloseWwhDisplayPanel: () => dispatch(closeWwhDisplayPanel()),
+    onRequestCloseWwhExtensionManager: () => dispatch(closeWwhExtensionManager())
 });
 
 export default injectIntl(connect(
