@@ -69,7 +69,7 @@ class ExtensionManager extends React.PureComponent {
         const extension = this.state.extensions.find(item => item.id === this.state.selectedId);
         const usage = this.state.usages[this.state.selectedId];
         if (!extension || !usage || usage.count !== 0 || this.state.busy) return;
-        if (!window.confirm(`确定卸载扩展“${extension.name}”吗？此操作不会删除项目文件。`)) return;
+        if (!window.confirm(`确定卸载扩展“${extension.name}”吗？此操作不会删除项目文件。`)) return; // eslint-disable-line no-alert
         this.setState({busy: true, error: null});
         try {
             await this.props.vm.unloadExtension(extension.id);
@@ -145,7 +145,7 @@ class ExtensionManager extends React.PureComponent {
                                                     disabled={!block.targetId}
                                                     onClick={() => this.handleLocate(block)}
                                                 >
-                                                    <span>{block.opcode}</span>
+                                                    <span>{(selected.blocks.find(info => info.opcode === block.opcode.slice(selected.id.length + 1)) || {}).text || block.opcode}</span>
                                                     <small>{block.targetName} · 定位积木</small>
                                                 </button>
                                             ))}
