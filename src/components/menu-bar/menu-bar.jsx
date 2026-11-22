@@ -1086,6 +1086,7 @@ MenuBar.propTypes = {
         )
     ]),
     onClickAccount: PropTypes.func,
+    onClickWwhExtensionManager: PropTypes.func,
     onClickAddonSettings: PropTypes.func,
     onClickDesktopSettings: PropTypes.func,
     onClickPackager: PropTypes.func,
