@@ -253,5 +253,7 @@ export {
     closeWwhSecurityPanel,
     closeWwhNetworkPanel,
     openWwhDisplayPanel,
-closeWwhDisplayPanel,
+    closeWwhDisplayPanel,
+    openWwhExtensionManager,
+    closeWwhExtensionManager
 };
