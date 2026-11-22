@@ -678,7 +678,7 @@ class MenuBar extends React.Component {
                                             }}
                                         >
                                             <FormattedMessage
-                                                defaultMessage="Extension manager"
+                                                defaultMessage="扩展管理"
                                                 description="Menu item for managing loaded extensions"
                                                 id="wwh.menuBar.extensionManager"
                                             />
