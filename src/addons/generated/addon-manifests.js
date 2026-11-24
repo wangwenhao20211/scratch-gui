@@ -165,5 +165,5 @@ export default {
     'tw-disable-compiler': _tw_disable_compiler,
     'editor-stepping': _editor_stepping,
     eruda: _eruda,
-    'whale-widget': _whale_widget,
+    'whale-widget': _whale_widget
 };
