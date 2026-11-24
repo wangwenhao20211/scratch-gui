@@ -196,4 +196,5 @@ export default {
     'editor-stepping': () =>
         import(/* webpackChunkName: "addon-entry-editor-stepping" */ '../addons/editor-stepping/_runtime_entry.js'),
     eruda: () => import(/* webpackChunkName: "addon-entry-eruda" */ '../addons/eruda/_runtime_entry.js'),
+    'whale-widget': () => import(/* webpackChunkName: "addon-entry-whale-widget" */ '../addons/whale-widget/_runtime_entry.js'),
 };
