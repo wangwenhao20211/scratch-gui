@@ -214,6 +214,7 @@ class MenuBar extends React.Component {
             'handleClickSave',
             'handleClickSaveAsCopy',
             'handleClickPackager',
+            'handleClickLeafosPackager',
             'handleClickDesktopSettings',
             'handleClickRestorePoints',
             'handleClickSeeCommunity',
@@ -264,6 +265,10 @@ class MenuBar extends React.Component {
     }
     handleClickPackager() {
         this.props.onClickPackager();
+        this.props.onRequestCloseFile();
+    }
+    handleClickLeafosPackager() {
+        this.props.onClickLeafosPackager();
         this.props.onRequestCloseFile();
     }
     handleClickDesktopSettings() {
@@ -668,6 +673,16 @@ class MenuBar extends React.Component {
                                                     id="tw.menuBar.package"
                                                 />
                                             </MenuItem>
+                                            {this.props.onClickLeafosPackager && (
+                                                <MenuItem onClick={this.handleClickLeafosPackager}>
+                                                    <FormattedMessage
+                                                        defaultMessage="LeafOS 打包器"
+                                                        // eslint-disable-next-line max-len
+                                                        description="Menu bar item to open the current project in the LeafOS packager"
+                                                        id="wwh.menuBar.leafosPackager"
+                                                    />
+                                                </MenuItem>
+                                            )}
                                         </MenuSection>
                                     )}
                                     <MenuSection>
@@ -1090,6 +1105,7 @@ MenuBar.propTypes = {
     onClickAddonSettings: PropTypes.func,
     onClickDesktopSettings: PropTypes.func,
     onClickPackager: PropTypes.func,
+    onClickLeafosPackager: PropTypes.func,
     onClickRestorePoints: PropTypes.func,
     onClickEdit: PropTypes.func,
     onClickFile: PropTypes.func,

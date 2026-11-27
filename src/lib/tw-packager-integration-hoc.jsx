@@ -6,12 +6,18 @@ import {getIsShowingProject} from '../reducers/project-state';
 
 const PACKAGER_URL = 'https://packager.turbowarp.org';
 const PACKAGER_ORIGIN = PACKAGER_URL;
+// LeafOS packager: third-party deployment of zx's SC project packager.
+// It implements the same import_from / p4 postMessage protocol as TurboWarp Packager.
+const LEAFOS_PACKAGER_ORIGIN = 'https://wangwenhao20211.github.io';
+const LEAFOS_PACKAGER_URL = `${LEAFOS_PACKAGER_ORIGIN}/leafos-packager`;
+const PACKAGER_ORIGINS = [PACKAGER_ORIGIN, LEAFOS_PACKAGER_ORIGIN];
 
 const PackagerIntegrationHOC = function (WrappedComponent) {
     class PackagerIntegrationComponent extends React.Component {
         constructor (props) {
             super(props);
             this.handleClickPackager = this.handleClickPackager.bind(this);
+            this.handleClickLeafosPackager = this.handleClickLeafosPackager.bind(this);
             this.handleMessage = this.handleMessage.bind(this);
         }
         componentDidMount () {
@@ -25,8 +31,13 @@ const PackagerIntegrationHOC = function (WrappedComponent) {
                 window.open(`${PACKAGER_URL}/?import_from=${location.origin}`);
             }
         }
+        handleClickLeafosPackager () {
+            if (this.props.canOpenPackager) {
+                window.open(`${LEAFOS_PACKAGER_URL}/?import_from=${location.origin}`);
+            }
+        }
         handleMessage (e) {
-            if (e.origin !== PACKAGER_ORIGIN) {
+            if (!PACKAGER_ORIGINS.includes(e.origin)) {
                 return;
             }
 
@@ -76,6 +87,7 @@ const PackagerIntegrationHOC = function (WrappedComponent) {
             return (
                 <WrappedComponent
                     onClickPackager={this.handleClickPackager}
+                    onClickLeafosPackager={this.handleClickLeafosPackager}
                     {...props}
                 />
             );
