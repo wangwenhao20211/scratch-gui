@@ -14,29 +14,29 @@ const PACKAGER_ORIGINS = [PACKAGER_ORIGIN, LEAFOS_PACKAGER_ORIGIN];
 
 const PackagerIntegrationHOC = function (WrappedComponent) {
     class PackagerIntegrationComponent extends React.Component {
-        constructor (props) {
+        constructor(props) {
             super(props);
             this.handleClickPackager = this.handleClickPackager.bind(this);
             this.handleClickLeafosPackager = this.handleClickLeafosPackager.bind(this);
             this.handleMessage = this.handleMessage.bind(this);
         }
-        componentDidMount () {
+        componentDidMount() {
             window.addEventListener('message', this.handleMessage);
         }
-        componentWillUnmount () {
+        componentWillUnmount() {
             window.removeEventListener('message', this.handleMessage);
         }
-        handleClickPackager () {
+        handleClickPackager() {
             if (this.props.canOpenPackager) {
                 window.open(`${PACKAGER_URL}/?import_from=${location.origin}`);
             }
         }
-        handleClickLeafosPackager () {
+        handleClickLeafosPackager() {
             if (this.props.canOpenPackager) {
                 window.open(`${LEAFOS_PACKAGER_URL}/?import_from=${location.origin}`);
             }
         }
-        handleMessage (e) {
+        handleMessage(e) {
             if (!PACKAGER_ORIGINS.includes(e.origin)) {
                 return;
             }
@@ -51,33 +51,44 @@ const PackagerIntegrationHOC = function (WrappedComponent) {
             }
 
             // The packager needs to know that we will be importing something so it can display a loading screen
-            e.source.postMessage({
-                p4: {
-                    type: 'start-import'
-                }
-            }, e.origin);
+            e.source.postMessage(
+                {
+                    p4: {
+                        type: 'start-import'
+                    }
+                },
+                e.origin
+            );
 
-            this.props.vm.saveProjectSb3('arraybuffer')
+            this.props.vm
+                .saveProjectSb3('arraybuffer')
                 .then(buffer => {
                     const name = `${this.props.reduxProjectTitle}.sb3`;
-                    e.source.postMessage({
-                        p4: {
-                            type: 'finish-import',
-                            data: buffer,
-                            name
-                        }
-                    }, e.origin, [buffer]);
+                    e.source.postMessage(
+                        {
+                            p4: {
+                                type: 'finish-import',
+                                data: buffer,
+                                name
+                            }
+                        },
+                        e.origin,
+                        [buffer]
+                    );
                 })
                 .catch(err => {
                     log.error(err);
-                    e.source.postMessage({
-                        p4: {
-                            type: 'cancel-import'
-                        }
-                    }, e.origin);
+                    e.source.postMessage(
+                        {
+                            p4: {
+                                type: 'cancel-import'
+                            }
+                        },
+                        e.origin
+                    );
                 });
         }
-        render () {
+        render() {
             const {
                 /* eslint-disable no-unused-vars */
                 canOpenPackager,
@@ -106,12 +117,7 @@ const PackagerIntegrationHOC = function (WrappedComponent) {
         vm: state.scratchGui.vm
     });
     const mapDispatchToProps = () => ({});
-    return connect(
-        mapStateToProps,
-        mapDispatchToProps
-    )(PackagerIntegrationComponent);
+    return connect(mapStateToProps, mapDispatchToProps)(PackagerIntegrationComponent);
 };
 
-export {
-    PackagerIntegrationHOC as default
-};
+export {PackagerIntegrationHOC as default};
