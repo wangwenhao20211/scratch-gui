@@ -37,6 +37,39 @@ const concatenateByteArrays = arrays => {
     return newArray;
 };
 
+const getReadableAssetName = (vm, currentFile) => {
+    if (!currentFile) return null;
+    const fileName = currentFile.split('/').pop();
+    if (fileName === 'project.json') return '项目数据';
+
+    const targets = vm.runtime.targets || [];
+    for (const target of targets) {
+        const sprite = target.sprite;
+        for (const costume of sprite.costumes || []) {
+            const asset = costume.broken ? costume.broken.asset : costume.asset;
+            if (asset && `${asset.assetId}.${asset.dataFormat}` === fileName) {
+                return `${target.isStage ? '背景' : '造型'}：${costume.name || '未命名'}`;
+            }
+        }
+        for (const sound of sprite.sounds || []) {
+            const asset = sound.broken ? sound.broken.asset : sound.asset;
+            if (asset && `${asset.assetId}.${asset.dataFormat}` === fileName) {
+                return `音频：${sound.name || '未命名'}`;
+            }
+        }
+    }
+
+    const fonts = vm.runtime.fontManager && vm.runtime.fontManager.fonts || [];
+    for (const font of fonts) {
+        const asset = font.asset;
+        if (asset && `${asset.assetId}.${asset.dataFormat}` === fileName) {
+            return `字体：${font.family || '未命名'}`;
+        }
+    }
+
+    return '项目资源';
+};
+
 class SB3Downloader extends React.Component {
     constructor(props) {
         super(props);
@@ -63,7 +96,7 @@ class SB3Downloader extends React.Component {
         setSaveStatus('saving', 0, null);
         this.props
             .saveProjectSb3('blob', info => {
-                setSaveStatus('saving', info.percent, null, info.currentFile);
+                setSaveStatus('saving', info.percent, null, getReadableAssetName(this.props.vm, info.currentFile));
             })
             .then(content => {
                 setSaveStatus('done', 1, null);
@@ -257,6 +290,7 @@ const getProjectFilename = (curTitle, defaultTitle) => {
 SB3Downloader.propTypes = {
     children: PropTypes.func,
     className: PropTypes.string,
+    vm: PropTypes.object,
     fileHandle: PropTypes.shape({
         name: PropTypes.string
     }),
@@ -284,6 +318,7 @@ SB3Downloader.defaultProps = {
 
 const mapStateToProps = state => ({
     fileHandle: state.scratchGui.tw.fileHandle,
+    vm: state.scratchGui.vm,
     saveProjectSb3: state.scratchGui.vm.saveProjectSb3.bind(state.scratchGui.vm),
     saveProjectSb3Stream: state.scratchGui.vm.saveProjectSb3Stream.bind(state.scratchGui.vm),
     canSaveProject: getIsShowingProject(state.scratchGui.projectState.loadingState),
