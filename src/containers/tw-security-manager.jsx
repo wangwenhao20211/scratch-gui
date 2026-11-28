@@ -181,6 +181,16 @@ let allowedReadClipboard = false;
 let allowedNotify = false;
 let allowedGeolocation = false;
 
+const resetPermissions = () => {
+    fetchHostsTrustedByUser.clear();
+    embedHostsTrustedByUser.clear();
+    allowedAudio = false;
+    allowedVideo = false;
+    allowedReadClipboard = false;
+    allowedNotify = false;
+    allowedGeolocation = false;
+};
+
 const SECURITY_MANAGER_METHODS = [
     'getSandboxMode',
     'canLoadExtensionFromProject',
@@ -201,11 +211,13 @@ class TWSecurityManagerComponent extends React.Component {
         super(props);
         bindAll(this, [
             'handleAllowed',
-            'handleDenied'
+            'handleDenied',
+            'handleRuntimeDisposed'
         ]);
         bindAll(this, SECURITY_MANAGER_METHODS);
         this.nextModalCallbacks = [];
         this.modalLocked = false;
+        this.generation = 0;
         this.state = {
             type: null,
             data: null,
@@ -220,9 +232,21 @@ class TWSecurityManagerComponent extends React.Component {
         for (const method of SECURITY_MANAGER_METHODS) {
             vmSecurityManager[method] = propsSecurityManager[method] || this[method];
         }
+        this.props.vm.runtime.on('RUNTIME_DISPOSED', this.handleRuntimeDisposed);
+    }
+
+    componentWillUnmount () {
+        this.props.vm.runtime.off('RUNTIME_DISPOSED', this.handleRuntimeDisposed);
+    }
+
+    handleRuntimeDisposed () {
+        resetPermissions();
+        this.generation++;
+        if (this.state.type) this.state.callback(false);
     }
 
     async acquireModalLock () {
+        const generation = this.generation;
         if (this.modalLocked) {
             await new Promise(resolve => {
                 this.nextModalCallbacks.push(resolve);
@@ -244,6 +268,10 @@ class TWSecurityManagerComponent extends React.Component {
         };
 
         const showModal = async (type, data) => {
+            if (generation !== this.generation) {
+                releaseLock();
+                return false;
+            }
             const result = await new Promise(resolve => {
                 this.setState(oldState => ({
                     type,
@@ -253,7 +281,7 @@ class TWSecurityManagerComponent extends React.Component {
                 }));
             });
             releaseLock();
-            return result;
+            return result && generation === this.generation;
         };
 
         return {
@@ -468,6 +496,10 @@ class TWSecurityManagerComponent extends React.Component {
 
 TWSecurityManagerComponent.propTypes = {
     vm: PropTypes.shape({
+        runtime: PropTypes.shape({
+            on: PropTypes.func.isRequired,
+            off: PropTypes.func.isRequired
+        }).isRequired,
         extensionManager: PropTypes.shape({
             securityManager: PropTypes.shape(
                 SECURITY_MANAGER_METHODS.reduce((obj, method) => {

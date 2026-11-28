@@ -9,7 +9,7 @@ const actuallyLoadServiceWorker = () => {
         });
 };
 const loadServiceWorker = () => {
-    if (process.env.ENABLE_SERVICE_WORKER && 'serviceWorker' in navigator && !loaded) {
+    if (process.env.ENABLE_SERVICE_WORKER && navigator.serviceWorker && typeof navigator.serviceWorker.register === 'function' && !loaded) {
         loaded = true;
         if (document.readyState === 'complete') {
             actuallyLoadServiceWorker();
