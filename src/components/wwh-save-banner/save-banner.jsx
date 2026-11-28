@@ -56,8 +56,8 @@ const SaveBanner = ({state, progress, currentFile, errorMessage, onDismiss}) => 
     if (state === 'saving') {
         statusText = currentFile ? (
             <FormattedMessage
-                defaultMessage="正在压缩：{file}"
-                id="wwh.saveBanner.compressing"
+                defaultMessage="正在保存：{file}"
+                id="wwh.saveBanner.savingAsset"
                 values={{file: currentFile}}
             />
         ) : (
