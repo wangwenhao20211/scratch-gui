@@ -77,22 +77,15 @@ const manuallyTrustExtension = url => {
  * @returns {boolean} True if the extension can is trusted
  */
 
-const isBaseTrusted = url => (
+const isBaseTrusted = url =>
     url.startsWith('https://extensions.turbowarp.org/') ||
     url.startsWith('https://turbowarp-extensions.pages.dev/') ||
     url.startsWith('http://localhost:8000/') ||
-    extensionsTrustedByUser.has(url)
-);
+    extensionsTrustedByUser.has(url);
 
-const isTrustedForAutoLoad = url => (
-    isBaseTrusted(url) ||
-    isTrustAllEnabled()
-);
+const isTrustedForAutoLoad = url => isBaseTrusted(url) || isTrustAllEnabled();
 
-const isTrustedForNoSandbox = url => (
-    isBaseTrusted(url) ||
-    isAllowThirdPartyUnsandboxed()
-);
+const isTrustedForNoSandbox = url => isBaseTrusted(url) || isAllowThirdPartyUnsandboxed();
 
 const isTrustedExtension = url => isTrustedForNoSandbox(url);
 
@@ -112,50 +105,27 @@ const embedHostsTrustedByUser = new Set();
  * @param {URL} parsed Parsed URL object
  * @returns {boolean} True if path is untrusted.
  */
-const isUntrustedPath = parsed => (
-    /^\/cdn-cgi\//i.test(parsed.pathname)
-);
+const isUntrustedPath = parsed => /^\/cdn-cgi\//i.test(parsed.pathname);
 
 /**
  * @param {URL} parsed Parsed URL object
  * @returns {boolean} True if the URL is part of the builtin set of URLs to always trust fetching from.
  */
-const isAlwaysTrustedForFetching = parsed => (
+const isAlwaysTrustedForFetching = parsed =>
     isTrustedForNoSandbox(parsed.href) ||
-
     parsed.origin === 'https://turbowarp.org' ||
     parsed.origin.endsWith('.turbowarp.org') ||
     parsed.origin.endsWith('.turbowarp.xyz') ||
-
     parsed.origin === 'https://raw.githubusercontent.com' ||
     parsed.origin === 'https://gist.githubusercontent.com' ||
     parsed.origin === 'https://api.github.com' ||
-
     parsed.origin === 'https://gitlab.com' ||
-
     parsed.origin.endsWith('.srht.site') ||
+    parsed.origin === 'https://api.gamejolt.com';
 
-    parsed.origin === 'https://api.gamejolt.com'
-);
+const FETCHABLE_PROTOCOLS = ['http:', 'https:', 'data:', 'blob:', 'ws:', 'wss:'];
 
-const FETCHABLE_PROTOCOLS = [
-    'http:',
-    'https:',
-    'data:',
-    'blob:',
-    'ws:',
-    'wss:'
-];
-
-const VISITABLE_PROTOCOLS = [
-    'http:',
-    'https:',
-    'data:',
-    'blob:',
-    'mailto:',
-    'steam:',
-    'calculator:'
-];
+const VISITABLE_PROTOCOLS = ['http:', 'https:', 'data:', 'blob:', 'mailto:', 'steam:', 'calculator:'];
 
 /**
  * @param {string} url Original URL string
@@ -207,13 +177,9 @@ const SECURITY_MANAGER_METHODS = [
 ];
 
 class TWSecurityManagerComponent extends React.Component {
-    constructor (props) {
+    constructor(props) {
         super(props);
-        bindAll(this, [
-            'handleAllowed',
-            'handleDenied',
-            'handleRuntimeDisposed'
-        ]);
+        bindAll(this, ['handleAllowed', 'handleDenied', 'handleRuntimeDisposed']);
         bindAll(this, SECURITY_MANAGER_METHODS);
         this.nextModalCallbacks = [];
         this.modalLocked = false;
@@ -226,7 +192,7 @@ class TWSecurityManagerComponent extends React.Component {
         };
     }
 
-    componentDidMount () {
+    componentDidMount() {
         const vmSecurityManager = this.props.vm.extensionManager.securityManager;
         const propsSecurityManager = this.props.securityManager;
         for (const method of SECURITY_MANAGER_METHODS) {
@@ -235,17 +201,17 @@ class TWSecurityManagerComponent extends React.Component {
         this.props.vm.runtime.on('RUNTIME_DISPOSED', this.handleRuntimeDisposed);
     }
 
-    componentWillUnmount () {
+    componentWillUnmount() {
         this.props.vm.runtime.off('RUNTIME_DISPOSED', this.handleRuntimeDisposed);
     }
 
-    handleRuntimeDisposed () {
+    handleRuntimeDisposed() {
         resetPermissions();
         this.generation++;
         if (this.state.type) this.state.callback(false);
     }
 
-    async acquireModalLock () {
+    async acquireModalLock() {
         const generation = this.generation;
         if (this.modalLocked) {
             await new Promise(resolve => {
@@ -290,11 +256,11 @@ class TWSecurityManagerComponent extends React.Component {
         };
     }
 
-    handleAllowed () {
+    handleAllowed() {
         this.state.callback(true);
     }
 
-    handleDenied () {
+    handleDenied() {
         this.state.callback(false);
     }
 
@@ -303,15 +269,15 @@ class TWSecurityManagerComponent extends React.Component {
      * @returns {string} The VM worker mode to use
      */
 
-    getSandboxMode (url) {
-    if (isTrustedForNoSandbox(url)) {
-        log.info(`Loading extension ${url} unsandboxed`);
-        return 'unsandboxed';
+    getSandboxMode(url) {
+        if (isTrustedForNoSandbox(url)) {
+            log.info(`Loading extension ${url} unsandboxed`);
+            return 'unsandboxed';
+        }
+        return 'iframe';
     }
-    return 'iframe';
-}
 
-    handleChangeUnsandboxed (e) {
+    handleChangeUnsandboxed(e) {
         const checked = e.target.checked;
         this.setState(oldState => ({
             data: {
@@ -325,7 +291,7 @@ class TWSecurityManagerComponent extends React.Component {
      * @param {string} url The extension's URL
      * @returns {Promise<boolean>} Whether the extension can be loaded
      */
-    async canLoadExtensionFromProject (url) {
+    async canLoadExtensionFromProject(url) {
         if (isTrustedForAutoLoad(url)) {
             log.info(`Loading extension ${url} automatically`);
             return true;
@@ -354,7 +320,7 @@ class TWSecurityManagerComponent extends React.Component {
         });
     }
 
-    async canFetch (url) {
+    async canFetch(url) {
         const networkManager = typeof window !== 'undefined' && window.__wwhNetworkManager;
         if (networkManager && !networkManager.authorize(url, 'vm-permission')) {
             return false;
@@ -367,12 +333,13 @@ class TWSecurityManagerComponent extends React.Component {
             return !isUntrustedPath(parsed);
         }
         const {showModal, releaseLock} = await this.acquireModalLock();
-        const host = (
+        const host =
             parsed.protocol === 'http:' ||
             parsed.protocol === 'https:' ||
             parsed.protocol === 'ws:' ||
             parsed.protocol === 'wss:'
-        ) ? parsed.host : null;
+                ? parsed.host
+                : null;
         if (host && fetchHostsTrustedByUser.has(host)) {
             releaseLock();
             return true;
@@ -386,7 +353,7 @@ class TWSecurityManagerComponent extends React.Component {
         return allowed;
     }
 
-    async canOpenWindow (url) {
+    async canOpenWindow(url) {
         const parsed = parseURL(url, VISITABLE_PROTOCOLS);
         if (!parsed) {
             return false;
@@ -397,7 +364,7 @@ class TWSecurityManagerComponent extends React.Component {
         });
     }
 
-    async canRedirect (url) {
+    async canRedirect(url) {
         const parsed = parseURL(url, VISITABLE_PROTOCOLS);
         if (!parsed) {
             return false;
@@ -408,7 +375,7 @@ class TWSecurityManagerComponent extends React.Component {
         });
     }
 
-    async canRecordAudio () {
+    async canRecordAudio() {
         if (!allowedAudio) {
             const {showModal} = await this.acquireModalLock();
             allowedAudio = await showModal(SecurityModals.RecordAudio);
@@ -416,7 +383,7 @@ class TWSecurityManagerComponent extends React.Component {
         return allowedAudio;
     }
 
-    async canRecordVideo () {
+    async canRecordVideo() {
         if (!allowedVideo) {
             const {showModal} = await this.acquireModalLock();
             allowedVideo = await showModal(SecurityModals.RecordVideo);
@@ -424,7 +391,7 @@ class TWSecurityManagerComponent extends React.Component {
         return allowedVideo;
     }
 
-    async canReadClipboard () {
+    async canReadClipboard() {
         if (!allowedReadClipboard) {
             const {showModal} = await this.acquireModalLock();
             allowedReadClipboard = await showModal(SecurityModals.ReadClipboard);
@@ -432,7 +399,7 @@ class TWSecurityManagerComponent extends React.Component {
         return allowedReadClipboard;
     }
 
-    async canNotify () {
+    async canNotify() {
         if (!allowedNotify) {
             const {showModal} = await this.acquireModalLock();
             allowedNotify = await showModal(SecurityModals.Notify);
@@ -440,7 +407,7 @@ class TWSecurityManagerComponent extends React.Component {
         return allowedNotify;
     }
 
-    async canGeolocate () {
+    async canGeolocate() {
         if (!allowedGeolocation) {
             const {showModal} = await this.acquireModalLock();
             allowedGeolocation = await showModal(SecurityModals.Geolocate);
@@ -448,12 +415,12 @@ class TWSecurityManagerComponent extends React.Component {
         return allowedGeolocation;
     }
 
-    async canEmbed (url) {
+    async canEmbed(url) {
         const parsed = parseURL(url, FETCHABLE_PROTOCOLS);
         if (!parsed) {
             return false;
         }
-        const host = (parsed.protocol === 'http:' || parsed.protocol === 'https:') ? parsed.host : null;
+        const host = parsed.protocol === 'http:' || parsed.protocol === 'https:' ? parsed.host : null;
         const {showModal, releaseLock} = await this.acquireModalLock();
         if (host && embedHostsTrustedByUser.has(host)) {
             releaseLock();
@@ -466,7 +433,7 @@ class TWSecurityManagerComponent extends React.Component {
         return allowed;
     }
 
-    async canDownload (url, name) {
+    async canDownload(url, name) {
         const parsed = parseURL(url, FETCHABLE_PROTOCOLS);
         if (!parsed) {
             return false;
@@ -478,7 +445,7 @@ class TWSecurityManagerComponent extends React.Component {
         });
     }
 
-    render () {
+    render() {
         if (this.state.type) {
             return (
                 <SecurityManagerModal
@@ -522,10 +489,7 @@ const mapStateToProps = state => ({
 
 const mapDispatchToProps = () => ({});
 
-const ConnectedSecurityManagerComponent = connect(
-    mapStateToProps,
-    mapDispatchToProps
-)(TWSecurityManagerComponent);
+const ConnectedSecurityManagerComponent = connect(mapStateToProps, mapDispatchToProps)(TWSecurityManagerComponent);
 
 export {
     ConnectedSecurityManagerComponent as default,

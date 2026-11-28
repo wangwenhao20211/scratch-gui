@@ -15,10 +15,7 @@ import {
     projectError,
     setProjectId
 } from '../reducers/project-state';
-import {
-    activateTab,
-    BLOCKS_TAB_INDEX
-} from '../reducers/editor-tab';
+import {activateTab, BLOCKS_TAB_INDEX} from '../reducers/editor-tab';
 
 import log from './log';
 import storage from './storage';
@@ -53,11 +50,9 @@ const fetchProjectToken = async projectId => {
  */
 const ProjectFetcherHOC = function (WrappedComponent) {
     class ProjectFetcherComponent extends React.Component {
-        constructor (props) {
+        constructor(props) {
             super(props);
-            bindAll(this, [
-                'fetchProject'
-            ]);
+            bindAll(this, ['fetchProject']);
             storage.setProjectHost(props.projectHost);
             storage.setProjectToken(props.projectToken);
             storage.setAssetHost(props.assetHost);
@@ -66,15 +61,11 @@ const ProjectFetcherHOC = function (WrappedComponent) {
             // or it may be set by an even higher HOC, and passed to us.
             // Either way, we now know what the initial projectId should be, so
             // set it in the redux store.
-            if (
-                props.projectId !== '' &&
-                props.projectId !== null &&
-                typeof props.projectId !== 'undefined'
-            ) {
+            if (props.projectId !== '' && props.projectId !== null && typeof props.projectId !== 'undefined') {
                 this.props.setProjectId(props.projectId.toString());
             }
         }
-        componentDidUpdate (prevProps) {
+        componentDidUpdate(prevProps) {
             if (prevProps.projectHost !== this.props.projectHost) {
                 storage.setProjectHost(this.props.projectHost);
             }
@@ -94,7 +85,7 @@ const ProjectFetcherHOC = function (WrappedComponent) {
                 this.props.onActivateTab(BLOCKS_TAB_INDEX);
             }
         }
-        fetchProject (projectId, loadingState) {
+        fetchProject(projectId, loadingState) {
             // tw: clear and stop the VM before fetching
             // these will also happen later after the project is fetched, but fetching may take a while and
             // the project shouldn't be running while fetching the new project
@@ -103,9 +94,8 @@ const ProjectFetcherHOC = function (WrappedComponent) {
 
             let assetPromise;
             // In case running in node...
-            let projectUrl = typeof URLSearchParams === 'undefined' ?
-                null :
-                new URLSearchParams(location.search).get('project_url');
+            let projectUrl =
+                typeof URLSearchParams === 'undefined' ? null : new URLSearchParams(location.search).get('project_url');
             if (projectUrl) {
                 if (
                     !projectUrl.startsWith('http:') &&
@@ -124,14 +114,12 @@ const ProjectFetcherHOC = function (WrappedComponent) {
                     .then(buffer => ({data: buffer}));
             } else {
                 // TW: Temporary hack for project tokens
-                assetPromise = fetchProjectToken(projectId)
-                    .then(token => {
-                        storage.setProjectToken(token);
-                        return storage.load(storage.AssetType.Project, projectId, storage.DataFormat.JSON)
-                            .catch(err => {
-                                throw new ProjectFetchError(`Could not load project: ${err}`);
-                            });
+                assetPromise = fetchProjectToken(projectId).then(token => {
+                    storage.setProjectToken(token);
+                    return storage.load(storage.AssetType.Project, projectId, storage.DataFormat.JSON).catch(err => {
+                        throw new ProjectFetchError(`Could not load project: ${err}`);
                     });
+                });
             }
 
             return assetPromise
@@ -154,7 +142,7 @@ const ProjectFetcherHOC = function (WrappedComponent) {
                     log.error(err);
                 });
         }
-        render () {
+        render() {
             const {
                 /* eslint-disable no-unused-vars */
                 assetHost,
@@ -173,12 +161,7 @@ const ProjectFetcherHOC = function (WrappedComponent) {
                 isFetchingWithId: isFetchingWithIdProp,
                 ...componentProps
             } = this.props;
-            return (
-                <WrappedComponent
-                    fetchingProject={isFetchingWithIdProp}
-                    {...componentProps}
-                />
-            );
+            return <WrappedComponent fetchingProject={isFetchingWithIdProp} {...componentProps} />;
         }
     }
     ProjectFetcherComponent.propTypes = {
@@ -218,22 +201,13 @@ const ProjectFetcherHOC = function (WrappedComponent) {
     const mapDispatchToProps = dispatch => ({
         onActivateTab: tab => dispatch(activateTab(tab)),
         onError: error => dispatch(projectError(error)),
-        onFetchedProjectData: (projectData, loadingState) =>
-            dispatch(onFetchedProjectData(projectData, loadingState)),
+        onFetchedProjectData: (projectData, loadingState) => dispatch(onFetchedProjectData(projectData, loadingState)),
         setProjectId: projectId => dispatch(setProjectId(projectId)),
         onProjectUnchanged: () => dispatch(setProjectUnchanged())
     });
     // Allow incoming props to override redux-provided props. Used to mock in tests.
-    const mergeProps = (stateProps, dispatchProps, ownProps) => Object.assign(
-        {}, stateProps, dispatchProps, ownProps
-    );
-    return injectIntl(connect(
-        mapStateToProps,
-        mapDispatchToProps,
-        mergeProps
-    )(ProjectFetcherComponent));
+    const mergeProps = (stateProps, dispatchProps, ownProps) => Object.assign({}, stateProps, dispatchProps, ownProps);
+    return injectIntl(connect(mapStateToProps, mapDispatchToProps, mergeProps)(ProjectFetcherComponent));
 };
 
-export {
-    ProjectFetcherHOC as default
-};
+export {ProjectFetcherHOC as default};

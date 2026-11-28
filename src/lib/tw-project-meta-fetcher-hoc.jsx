@@ -63,7 +63,7 @@ const setIndexable = indexable => {
 
 const TWProjectMetaFetcherHOC = function (WrappedComponent) {
     class ProjectMetaFetcherComponent extends React.Component {
-        componentDidUpdate (prevProps) {
+        componentDidUpdate(prevProps) {
             // project title resetting is handled in titled-hoc.jsx
             if (this.props.reduxProjectId !== prevProps.reduxProjectId) {
                 this.props.onSetAuthor('', '');
@@ -73,26 +73,27 @@ const TWProjectMetaFetcherHOC = function (WrappedComponent) {
                 if (projectId === '0') {
                     // don't try to get metadata
                 } else {
-                    fetchProjectMeta(projectId).then(data => {
-                        // If project ID changed, ignore the results.
-                        if (this.props.reduxProjectId !== projectId) {
-                            return;
-                        }
+                    fetchProjectMeta(projectId)
+                        .then(data => {
+                            // If project ID changed, ignore the results.
+                            if (this.props.reduxProjectId !== projectId) {
+                                return;
+                            }
 
-                        const title = data.title;
-                        if (title) {
-                            this.props.onSetProjectTitle(title);
-                        }
-                        const authorName = data.author.username;
-                        const authorThumbnail = `https://trampoline.turbowarp.org/avatars/${data.author.id}`;
-                        this.props.onSetAuthor(authorName, authorThumbnail);
-                        const instructions = data.instructions || '';
-                        const credits = data.description || '';
-                        if (instructions || credits) {
-                            this.props.onSetDescription(instructions, credits);
-                        }
-                        setIndexable(true);
-                    })
+                            const title = data.title;
+                            if (title) {
+                                this.props.onSetProjectTitle(title);
+                            }
+                            const authorName = data.author.username;
+                            const authorThumbnail = `https://trampoline.turbowarp.org/avatars/${data.author.id}`;
+                            this.props.onSetAuthor(authorName, authorThumbnail);
+                            const instructions = data.instructions || '';
+                            const credits = data.description || '';
+                            if (instructions || credits) {
+                                this.props.onSetDescription(instructions, credits);
+                            }
+                            setIndexable(true);
+                        })
                         .catch(err => {
                             setIndexable(false);
                             log.warn('cannot fetch project meta', err);
@@ -100,7 +101,7 @@ const TWProjectMetaFetcherHOC = function (WrappedComponent) {
                 }
             }
         }
-        render () {
+        render() {
             const {
                 /* eslint-disable no-unused-vars */
                 reduxProjectId,
@@ -110,11 +111,7 @@ const TWProjectMetaFetcherHOC = function (WrappedComponent) {
                 /* eslint-enable no-unused-vars */
                 ...props
             } = this.props;
-            return (
-                <WrappedComponent
-                    {...props}
-                />
-            );
+            return <WrappedComponent {...props} />;
         }
     }
     ProjectMetaFetcherComponent.propTypes = {
@@ -127,22 +124,23 @@ const TWProjectMetaFetcherHOC = function (WrappedComponent) {
         reduxProjectId: state.scratchGui.projectState.projectId
     });
     const mapDispatchToProps = dispatch => ({
-        onSetAuthor: (username, thumbnail) => dispatch(setAuthor({
-            username,
-            thumbnail
-        })),
-        onSetDescription: (instructions, credits) => dispatch(setDescription({
-            instructions,
-            credits
-        })),
+        onSetAuthor: (username, thumbnail) =>
+            dispatch(
+                setAuthor({
+                    username,
+                    thumbnail
+                })
+            ),
+        onSetDescription: (instructions, credits) =>
+            dispatch(
+                setDescription({
+                    instructions,
+                    credits
+                })
+            ),
         onSetProjectTitle: title => dispatch(setProjectTitle(title))
     });
-    return connect(
-        mapStateToProps,
-        mapDispatchToProps
-    )(ProjectMetaFetcherComponent);
+    return connect(mapStateToProps, mapDispatchToProps)(ProjectMetaFetcherComponent);
 };
 
-export {
-    TWProjectMetaFetcherHOC as default
-};
+export {TWProjectMetaFetcherHOC as default};
