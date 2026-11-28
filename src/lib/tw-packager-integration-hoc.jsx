@@ -8,8 +8,8 @@ const PACKAGER_URL = 'https://packager.turbowarp.org';
 const PACKAGER_ORIGIN = PACKAGER_URL;
 // LeafOS packager: third-party deployment of zx's SC project packager.
 // It implements the same import_from / p4 postMessage protocol as TurboWarp Packager.
-const LEAFOS_PACKAGER_ORIGIN = 'https://wangwenhao20211.github.io';
-const LEAFOS_PACKAGER_URL = `${LEAFOS_PACKAGER_ORIGIN}/leafos-packager`;
+const LEAFOS_PACKAGER_ORIGIN = 'https://packager.wwhgames.cn';
+const LEAFOS_PACKAGER_URL = LEAFOS_PACKAGER_ORIGIN;
 const PACKAGER_ORIGINS = [PACKAGER_ORIGIN, LEAFOS_PACKAGER_ORIGIN];
 
 const PackagerIntegrationHOC = function (WrappedComponent) {
