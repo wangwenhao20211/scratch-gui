@@ -9,7 +9,6 @@ import log from '../lib/log';
 import storage from '../lib/storage';
 import dataURItoBlob from '../lib/data-uri-to-blob';
 import saveProjectToServer from '../lib/save-project-to-server';
-import {setSaveStatus} from './wwh-save-status';
 
 import {showAlertWithTimeout, showStandardAlert} from '../reducers/alerts';
 import {setAutoSaveTimeoutId} from '../reducers/timeout';
@@ -219,56 +218,26 @@ const ProjectSaverHOC = function (WrappedComponent) {
             // serialized project refers to a newer asset than what
             // we just finished saving).
             const savedVMState = this.props.vm.toJSON();
-            const pendingAssets = this.props.vm.assets.filter(asset => !asset.clean);
-            const total = pendingAssets.length + 1;
-            let completed = 0;
-            const findAssetName = asset => {
-                const assetId = asset.assetId;
-                const targets = this.props.vm.runtime.targets || [];
-                for (const target of targets) {
-                    for (const costume of target.costumes || []) {
-                        const costumeId = costume.asset && costume.asset.assetId;
-                        if (costumeId === assetId || costume.md5 === `${assetId}.${asset.dataFormat}`) {
-                            return `${target.isStage ? '背景' : '造型'}：${costume.name || '未命名'}`;
-                        }
-                    }
-                    for (const sound of target.sounds || []) {
-                        const soundId = sound.asset && sound.asset.assetId;
-                        if (soundId === assetId || sound.md5 === `${assetId}.${asset.dataFormat}`) {
-                            return `音频：${sound.name || '未命名'}`;
-                        }
-                    }
-                }
-                const storageTypes = this.props.vm.runtime.storage.AssetType;
-                if (asset.assetType === storageTypes.Sound) return '音频资源';
-                if (asset.assetType === storageTypes.ImageVector || asset.assetType === storageTypes.ImageBitmap)
-                    return '造型/背景资源';
-                return '项目资源';
-            };
-            setSaveStatus('saving', 0, null, pendingAssets.length ? findAssetName(pendingAssets[0]) : '项目数据');
-            return Promise.all(
-                pendingAssets.map(asset =>
-                    storage.store(asset.assetType, asset.dataFormat, asset.data, asset.assetId).then(response => {
+            return Promise.all(this.props.vm.assets
+                .filter(asset => !asset.clean)
+                .map(
+                    asset => storage.store(
+                        asset.assetType,
+                        asset.dataFormat,
+                        asset.data,
+                        asset.assetId
+                    ).then(response => {
                         // Asset servers respond with {status: ok} for successful POSTs
                         if (response.status !== 'ok') {
                             // Errors include a `code` property, e.g. "Forbidden"
                             return Promise.reject(response.code);
                         }
                         asset.clean = true;
-                        completed += 1;
-                        const nextAsset = pendingAssets[completed];
-                        setSaveStatus(
-                            'saving',
-                            completed / total,
-                            null,
-                            nextAsset ? findAssetName(nextAsset) : '项目数据'
-                        );
                     })
                 )
             )
                 .then(() => this.props.onUpdateProjectData(projectId, savedVMState, requestParams))
                 .then(response => {
-                    setSaveStatus('done', 1, null, null);
                     this.props.onSetProjectUnchanged();
                     const id = response.id.toString();
                     if (id && this.props.onUpdateProjectThumbnail) {
@@ -278,7 +247,6 @@ const ProjectSaverHOC = function (WrappedComponent) {
                     return response;
                 })
                 .catch(err => {
-                    setSaveStatus('error', completed / total, String(err), null);
                     log.error(err);
                     throw err; // pass the error up the chain
                 });
